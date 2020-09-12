@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "strict": true,
+    "strictFunctionTypes": false,
+    "skipLibCheck": true,
+    "inlineSourceMap": true,
+    "inlineSources": true
+  },
+  "exclude": ["cdk.out"]
+}
