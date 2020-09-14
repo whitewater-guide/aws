@@ -10,3 +10,5 @@ cdk.out
 
 # Parcel default cache directory
 .parcel-cache
+
+bin/aws-accounts.ts
