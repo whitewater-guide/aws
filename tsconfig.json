@@ -10,7 +10,8 @@
     "strictFunctionTypes": false,
     "skipLibCheck": true,
     "inlineSourceMap": true,
-    "inlineSources": true
+    "inlineSources": true,
+    "outDir": "dist"
   },
   "exclude": ["cdk.out"]
 }
