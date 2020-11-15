@@ -67,7 +67,8 @@
     "cdk-lambda": {
       "context": "node",
       "includeNodeModules": {
-        "aws-sdk": false
+        "aws-sdk": false,
+        "pg-native": false
       },
       "sourceMap": false,
       "minify": false,

@@ -16,7 +16,7 @@ export class BucketDistribution extends cloudfront.Distribution {
     subDomain = '',
     props: RootProps,
   ) {
-    const { topLevelDomain } = props;
+    const { topLevelDomain, wildcardCertArn } = props;
     const prefix = upperFirst(subDomain || 'root');
     const fullDomain = [subDomain, topLevelDomain].filter((d) => !!d).join('.');
 
@@ -29,14 +29,10 @@ export class BucketDistribution extends cloudfront.Distribution {
       },
     );
 
-    const certificate = new cert.DnsValidatedCertificate(
+    const certificate = cert.Certificate.fromCertificateArn(
       scope,
       `${prefix}Certificate`,
-      {
-        domainName: fullDomain,
-        hostedZone,
-        region: 'us-east-1',
-      },
+      wildcardCertArn,
     );
 
     super(scope, `${prefix}Distribution`, {
