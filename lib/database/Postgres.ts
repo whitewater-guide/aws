@@ -24,7 +24,6 @@ export class Postgres {
       ),
       vpc: cluster.vpc,
       multiAz: false,
-      masterUsername: 'postgres',
       databaseName: 'postgres',
       backupRetention: isDev ? cdk.Duration.days(0) : cdk.Duration.days(7),
       deleteAutomatedBackups: isDev,
