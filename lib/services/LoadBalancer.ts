@@ -9,6 +9,7 @@ import { upperFirst } from 'lodash';
 export interface LoadBalancerProps {
   cluster: ecs.Cluster;
   topLevelDomain: string;
+  wildcardCertArn: string;
 }
 
 export class LoadBalancer {
@@ -19,17 +20,14 @@ export class LoadBalancer {
   private _hostedZone?: route53.IHostedZone;
 
   constructor(scope: cdk.Construct, props: LoadBalancerProps) {
-    const { cluster, topLevelDomain } = props;
+    const { cluster, topLevelDomain, wildcardCertArn } = props;
     this._topLevelDomain = topLevelDomain;
     this._scope = scope;
 
-    const certificate = new cert.DnsValidatedCertificate(
+    const certificate = cert.Certificate.fromCertificateArn(
       scope,
       'ALBWildcartCertificate',
-      {
-        domainName: `*.${topLevelDomain}`,
-        hostedZone: this.hostedZone,
-      },
+      wildcardCertArn,
     );
 
     const balancer = new elbv2.ApplicationLoadBalancer(scope, 'ALB', {

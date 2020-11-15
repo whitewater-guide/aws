@@ -13,7 +13,6 @@ export class Postgres {
   constructor(scope: cdk.Construct, props: DatabaseProps) {
     const { cluster, isDev } = props;
     this._scope = scope;
-
     this._instance = new rds.DatabaseInstance(scope, 'Postgres', {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_12_3,
@@ -25,6 +24,9 @@ export class Postgres {
       vpc: cluster.vpc,
       multiAz: false,
       databaseName: 'postgres',
+      credentials: rds.Credentials.fromGeneratedSecret('postgres', {
+        excludeCharacters: ' =.,%+~^`#$&*()|[]{}:;<>?!\'/@"\\',
+      }),
       backupRetention: isDev ? cdk.Duration.days(0) : cdk.Duration.days(7),
       deleteAutomatedBackups: isDev,
       deletionProtection: !isDev,

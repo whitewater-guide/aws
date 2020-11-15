@@ -21,21 +21,14 @@ type Props = ServicesStackProps & cdk.StackProps;
 export class ServicesStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: Props) {
     super(scope, id, props);
-    const { cluster, topLevelDomain, postgresPassword } = props;
+    const { cluster } = props;
 
     const api = new Api(this, props);
-    const gorge = new Gorge(this, {
-      cluster,
-      topLevelDomain,
-      postgresPassword,
-    });
+    const gorge = new Gorge(this, props);
     const imgproxy = new Imgproxy(this, props);
     const pgadmin = new PGAdmin(this, cluster);
 
-    const balancer = new LoadBalancer(this, {
-      cluster,
-      topLevelDomain,
-    });
+    const balancer = new LoadBalancer(this, props);
     balancer.addServiceTarget(100, 'api', api.listenerTargetProps);
     balancer.addServiceTarget(200, 'pgadmin', pgadmin.listenerTargetProps);
     balancer.addServiceTarget(300, 'imgproxy', imgproxy.listenerTargetProps);
