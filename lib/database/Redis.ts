@@ -23,11 +23,17 @@ export class Redis {
       },
     );
 
+    const securityGroup = new ec2.SecurityGroup(scope, 'RedisSecurityGroup', {
+      vpc,
+      allowAllOutbound: true,
+    });
+    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(6379));
+
     this._cluster = new elasticache.CfnCacheCluster(scope, 'RedisCluster', {
       engine: 'redis',
       cacheNodeType: 'cache.t3.micro',
       numCacheNodes: 1,
-      vpcSecurityGroupIds: [vpc.vpcDefaultSecurityGroup],
+      vpcSecurityGroupIds: [securityGroup.securityGroupId],
       cacheSubnetGroupName: subnetGroup.ref,
     });
 

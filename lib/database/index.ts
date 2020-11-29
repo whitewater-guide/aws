@@ -18,8 +18,9 @@ export class DatabaseStack extends cdk.Stack {
     this.posgres = new Postgres(this, props);
     this.redis = new Redis(this, props);
 
-    new PGInit(this, 'PGInit', props.cluster.vpc, {
-      pgSecretArn: this.posgres.secret.secretArn,
+    new PGInit(this, 'PGInit', {
+      cluster: props.cluster,
+      pgSecret: this.posgres.secret,
       pgHost: this.posgres.host,
       pgPort: this.posgres.port,
     });

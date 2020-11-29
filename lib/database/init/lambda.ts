@@ -2,13 +2,18 @@ import type { CloudFormationCustomResourceEvent } from 'aws-lambda';
 import AWS from 'aws-sdk';
 import { Client } from 'pg';
 
+import { PGInitResourceProps } from './types';
+
 export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
   if (event.RequestType !== 'Create') {
     return;
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const properties = (event.ResourceProperties as any) as PGInitResourceProps;
+  console.info('Initializing postgres', properties);
   const secretsManager = new AWS.SecretsManager();
   const secret = await secretsManager
-    .getSecretValue({ SecretId: event.ResourceProperties.pgSecretArn })
+    .getSecretValue({ SecretId: properties.pgSecretArn })
     .promise();
 
   if (!secret.SecretString) {
@@ -19,10 +24,10 @@ export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
 
   const client = new Client({
     user: 'postgres',
-    host: event.ResourceProperties.pgHost,
+    host: properties.pgHost,
     database: 'postgres',
     password,
-    port: parseInt(event.ResourceProperties.pgPort, 10),
+    port: parseInt(properties.pgPort, 10),
   });
   await client.connect();
   await client.query(`CREATE EXTENSION IF NOT EXISTS "pg_trgm";
@@ -32,4 +37,5 @@ export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
   await client.query('CREATE DATABASE wwguide');
   await client.query('CREATE DATABASE gorge');
   await client.end();
+  console.info('initialized pg extensions and databases');
 };

@@ -3,14 +3,13 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import * as cdk from '@aws-cdk/core';
 
-import { RootProps } from '../types';
 import { Api } from './Api';
 import { Gorge } from './Gorge';
 import { Imgproxy } from './Imgproxy';
 import { LoadBalancer } from './LoadBalancer';
 import { PGAdmin } from './PGAdmin';
 
-export interface ServicesStackProps extends RootProps {
+export interface ServicesStackProps {
   cluster: ecs.Cluster;
   postgresPassword: secretsmanager.ISecret;
   contentBucket: s3.Bucket;
@@ -24,7 +23,7 @@ export class ServicesStack extends cdk.Stack {
     const { cluster } = props;
 
     const api = new Api(this, props);
-    const gorge = new Gorge(this, props);
+    new Gorge(this, props);
     const imgproxy = new Imgproxy(this, props);
     const pgadmin = new PGAdmin(this, cluster);
 

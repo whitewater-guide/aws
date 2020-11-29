@@ -1,3 +1,4 @@
+import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
 import * as iam from '@aws-cdk/aws-iam';
@@ -12,6 +13,7 @@ export interface ServiceProps {
   image: string;
 
   environment?: { [key: string]: string };
+  secrets?: { [key: string]: ecs.Secret };
   enableLogging?: boolean;
   command?: string[];
 
@@ -28,6 +30,7 @@ export class Service {
   private readonly _taskDefinition: ecs.FargateTaskDefinition;
   private readonly _healthCheck: string;
   private readonly _port: number;
+  private readonly _service: ecs.FargateService;
   protected readonly _scope: cdk.Construct;
 
   constructor(scope: cdk.Construct, props: ServiceProps) {
@@ -36,6 +39,7 @@ export class Service {
       name,
       image,
       environment,
+      secrets,
       cluster,
       port,
       cpu,
@@ -56,6 +60,7 @@ export class Service {
     const container = this._taskDefinition.addContainer(`${prefix}Container`, {
       image: ecs.ContainerImage.fromRegistry(image),
       environment,
+      secrets,
       logging: props.enableLogging
         ? new ecs.AwsLogDriver({
             streamPrefix: prefix,
@@ -73,7 +78,7 @@ export class Service {
       protocol: ecs.Protocol.TCP,
     });
 
-    const service = new ecs.FargateService(scope, `${prefix}Service`, {
+    this._service = new ecs.FargateService(scope, `${prefix}Service`, {
       cluster,
       taskDefinition: this._taskDefinition,
       vpcSubnets: {
@@ -86,11 +91,15 @@ export class Service {
     });
 
     this._loadBalancerTargets = [
-      service.loadBalancerTarget({
+      this._service.loadBalancerTarget({
         containerName: container.containerName,
         containerPort: port,
       }),
     ];
+  }
+
+  public get connections(): ec2.Connections {
+    return this._service.connections;
   }
 
   public get listenerTargetProps(): elbv2.AddApplicationTargetsProps {
@@ -111,7 +120,7 @@ export class Service {
     );
   }
 
-  public get executionRole() {
-    return this._taskDefinition.obtainExecutionRole();
+  public get taskRole() {
+    return this._taskDefinition.taskRole;
   }
 }

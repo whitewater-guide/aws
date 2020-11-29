@@ -6,24 +6,30 @@ import * as cdk from '@aws-cdk/core';
 import * as cr from '@aws-cdk/custom-resources';
 import * as path from 'path';
 
+interface PGInitProviderProps {
+  vpc: ec2.IVpc;
+  isDev?: boolean;
+  postgresSecretArn: string;
+}
+
 export default class PGInitProvider extends cdk.Construct {
   private readonly _provider: cr.Provider;
 
   /**
    * Returns the singleton provider.
    */
-  public static getOrCreate(scope: cdk.Construct, vpc: ec2.IVpc) {
+  public static getOrCreate(scope: cdk.Construct, props: PGInitProviderProps) {
     const stack = cdk.Stack.of(scope);
     const id = 'com.amazonaws.cdk.custom-resources.pginit-provider';
     const x =
       (stack.node.tryFindChild(id) as PGInitProvider) ||
-      new PGInitProvider(stack, id, vpc);
+      new PGInitProvider(stack, id, props);
     return x._provider.serviceToken;
   }
 
-  constructor(scope: cdk.Construct, id: string, vpc: ec2.IVpc) {
+  constructor(scope: cdk.Construct, id: string, props: PGInitProviderProps) {
     super(scope, id);
-    const stack = cdk.Stack.of(scope);
+    const { postgresSecretArn, vpc } = props;
     this._provider = new cr.Provider(this, 'PGInitProvider', {
       onEventHandler: new lambda.NodejsFunction(this, 'PGInitLambda', {
         entry: path.resolve(__dirname, 'lambda.ts'),
@@ -37,18 +43,13 @@ export default class PGInitProvider extends cdk.Construct {
               'secretsmanager:GetSecretValue',
               'secretsmanager:DescribeSecret',
             ],
-            resources: [
-              stack.formatArn({
-                service: 'secretsmanager',
-                resource: 'secret',
-                sep: ':',
-                resourceName: 'PostgresSecret*',
-              }),
-            ],
+            resources: [postgresSecretArn],
           }),
         ],
+        timeout: cdk.Duration.minutes(15),
         logRetention: logs.RetentionDays.ONE_DAY,
       }),
+      logRetention: logs.RetentionDays.ONE_DAY,
     });
   }
 }

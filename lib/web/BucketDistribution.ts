@@ -7,16 +7,11 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 import upperFirst from 'lodash/upperFirst';
 
-import { RootProps } from '../types';
+import { Config } from '../config';
 
 export class BucketDistribution extends cloudfront.Distribution {
-  constructor(
-    scope: cdk.Construct,
-    bucket: s3.Bucket,
-    subDomain = '',
-    props: RootProps,
-  ) {
-    const { topLevelDomain, wildcardCertArn } = props;
+  constructor(scope: cdk.Construct, bucket: s3.Bucket, subDomain = '') {
+    const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const prefix = upperFirst(subDomain || 'root');
     const fullDomain = [subDomain, topLevelDomain].filter((d) => !!d).join('.');
 
@@ -32,13 +27,18 @@ export class BucketDistribution extends cloudfront.Distribution {
     const certificate = cert.Certificate.fromCertificateArn(
       scope,
       `${prefix}Certificate`,
-      wildcardCertArn,
+      Config.get(scope, 'wildcardCertArn'),
     );
 
     super(scope, `${prefix}Distribution`, {
       defaultBehavior: {
         origin: new origins.S3Origin(bucket),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        originRequestPolicy: cloudfront.OriginRequestPolicy.CORS_S3_ORIGIN,
+        cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
       },
+      defaultRootObject: 'index.html',
       domainNames: [fullDomain],
       certificate,
       errorResponses: [

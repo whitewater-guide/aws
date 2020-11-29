@@ -6,10 +6,10 @@ import * as targets from '@aws-cdk/aws-route53-targets';
 import * as cdk from '@aws-cdk/core';
 import { upperFirst } from 'lodash';
 
+import { Config } from '../config';
+
 export interface LoadBalancerProps {
   cluster: ecs.Cluster;
-  topLevelDomain: string;
-  wildcardCertArn: string;
 }
 
 export class LoadBalancer {
@@ -20,14 +20,14 @@ export class LoadBalancer {
   private _hostedZone?: route53.IHostedZone;
 
   constructor(scope: cdk.Construct, props: LoadBalancerProps) {
-    const { cluster, topLevelDomain, wildcardCertArn } = props;
-    this._topLevelDomain = topLevelDomain;
+    const { cluster } = props;
+    this._topLevelDomain = Config.get(scope, 'topLevelDomain');
     this._scope = scope;
 
     const certificate = cert.Certificate.fromCertificateArn(
       scope,
       'ALBWildcartCertificate',
-      wildcardCertArn,
+      Config.get(scope, 'wildcardCertArn'),
     );
 
     const balancer = new elbv2.ApplicationLoadBalancer(scope, 'ALB', {

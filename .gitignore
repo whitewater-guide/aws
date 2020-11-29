@@ -7,8 +7,12 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+cdk.context.json
 
 # Parcel default cache directory
 .parcel-cache
+
+# Typescript output
+dist/
 
 bin/aws-accounts.ts
