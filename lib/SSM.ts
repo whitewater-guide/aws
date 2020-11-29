@@ -1,3 +1,4 @@
+import * as ecs from '@aws-cdk/aws-ecs';
 import * as ssm from '@aws-cdk/aws-ssm';
 import * as cdk from '@aws-cdk/core';
 import * as cr from '@aws-cdk/custom-resources';
@@ -27,32 +28,23 @@ export class SSM {
 
   public static GOOGLE_SERVICE_ACCOUNT = 'GOOGLE_SERVICE_ACCOUNT';
 
+  public static PGADMIN_DEFAULT_EMAIL = 'PGADMIN_DEFAULT_EMAIL';
+  public static PGADMIN_DEFAULT_PASSWORD = 'PGADMIN_DEFAULT_PASSWORD';
+
   public static string(scope: cdk.Construct, id: string) {
     return ssm.StringParameter.valueForStringParameter(scope, id);
   }
 
   // Get the latest version of a secure SSM parameter
-  public static secret(scope: cdk.Construct, id: string) {
-    let res = SSM._secretResources.get(scope.node.uniqueId + '/' + id);
-    if (!res) {
-      const suffix = upperFirst(camelCase(id));
-      res = new cr.AwsCustomResource(scope, `GetParameter${suffix}`, {
-        onUpdate: {
-          // will also be called for a CREATE event
-          service: 'SSM',
-          action: 'getParameter',
-          parameters: {
-            Name: id,
-            WithDecryption: true,
-          },
-          physicalResourceId: cr.PhysicalResourceId.of(Date.now().toString()), // Update physical id to always fetch the latest version
-        },
-        policy: cr.AwsCustomResourcePolicy.fromSdkCalls({
-          resources: cr.AwsCustomResourcePolicy.ANY_RESOURCE,
+  public static secret(scope: cdk.Construct, id: string): ecs.Secret {
+    const name = upperFirst(camelCase(id));
+    const existing: any = scope.node.tryFindChild(name);
+    return ecs.Secret.fromSsmParameter(
+      existing ??
+        ssm.StringParameter.fromSecureStringParameterAttributes(scope, name, {
+          parameterName: id,
+          version: 1,
         }),
-      });
-      SSM._secretResources.set(scope.node.uniqueId + '/' + id, res);
-    }
-    return res.getResponseField('Parameter.Value');
+    );
   }
 }

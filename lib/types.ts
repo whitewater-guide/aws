@@ -1,4 +1,4 @@
-export interface RootProps {
+export interface AppConfig {
   isDev?: boolean;
   topLevelDomain: string;
   wildcardCertArn: string;

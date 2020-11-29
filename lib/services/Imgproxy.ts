@@ -5,18 +5,18 @@ import * as ecs from '@aws-cdk/aws-ecs';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 
+import { Config } from '../config';
 import { SSM } from '../SSM';
-import { RootProps } from '../types';
 import { Service } from './Service';
 
-interface Props extends RootProps {
+interface Props {
   cluster: ecs.Cluster;
   contentBucket: s3.Bucket;
 }
 
 export class Imgproxy extends Service {
   constructor(scope: cdk.Construct, props: Props) {
-    const { cluster, contentBucket, topLevelDomain, wildcardCertArn } = props;
+    const { cluster, contentBucket } = props;
 
     super(scope, {
       cluster,
@@ -32,36 +32,35 @@ export class Imgproxy extends Service {
         IMGPROXY_ALLOWED_SOURCES: 's3://',
         IMGPROXY_LOG_FORMAT: 'json',
         IMGPROXY_TTL: '31536000', // 1 year
+      },
+      secrets: {
         IMGPROXY_KEY: SSM.secret(scope, SSM.IMGPROXY_KEY),
         IMGPROXY_SALT: SSM.secret(scope, SSM.IMGPROXY_SALT),
         IMGPROXY_SECRET: SSM.secret(scope, SSM.IMGPROXY_SECRET),
       },
     });
 
-    contentBucket.grantRead(this.executionRole);
+    contentBucket.grantRead(this.taskRole);
 
+    const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const domainName = `content.${topLevelDomain}`;
 
     const certificate = cert.Certificate.fromCertificateArn(
       scope,
       'ImgproxyCert',
-      wildcardCertArn,
+      Config.get(scope, 'wildcardCertArn'),
     );
 
-    const distribution = new cloudfront.Distribution(
-      scope,
-      'ContentDistribution',
-      {
-        defaultBehavior: {
-          origin: new origins.HttpOrigin(`imgproxy.${topLevelDomain}`, {
-            customHeaders: {
-              Authorization: `Bearer ${SSM.secret(scope, SSM.IMGPROXY_SECRET)}`,
-            },
-          }),
-        },
-        domainNames: [domainName],
-        certificate,
+    new cloudfront.Distribution(scope, 'ContentDistribution', {
+      defaultBehavior: {
+        origin: new origins.HttpOrigin(`imgproxy.${topLevelDomain}`, {
+          customHeaders: {
+            Authorization: `Bearer ${SSM.secret(scope, SSM.IMGPROXY_SECRET)}`,
+          },
+        }),
       },
-    );
+      domainNames: [domainName],
+      certificate,
+    });
   }
 }

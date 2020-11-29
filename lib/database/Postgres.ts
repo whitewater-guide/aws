@@ -4,18 +4,19 @@ import * as rds from '@aws-cdk/aws-rds';
 import * as cloudmap from '@aws-cdk/aws-servicediscovery';
 import * as cdk from '@aws-cdk/core';
 
+import { Config } from '../config';
 import { DatabaseProps } from './types';
 
 export class Postgres {
   private readonly _instance: rds.DatabaseInstance;
   private readonly _scope: cdk.Construct;
 
-  constructor(scope: cdk.Construct, props: DatabaseProps) {
-    const { cluster, isDev } = props;
+  constructor(scope: cdk.Construct, { cluster }: DatabaseProps) {
+    const isDev = Config.get(scope, 'isDev');
     this._scope = scope;
     this._instance = new rds.DatabaseInstance(scope, 'Postgres', {
       engine: rds.DatabaseInstanceEngine.postgres({
-        version: rds.PostgresEngineVersion.VER_12_3,
+        version: rds.PostgresEngineVersion.VER_12_4,
       }),
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T3,

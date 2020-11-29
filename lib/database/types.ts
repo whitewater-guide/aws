@@ -1,7 +1,5 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 
-import { RootProps } from '../types';
-
-export interface DatabaseProps extends RootProps {
+export interface DatabaseProps {
   cluster: ecs.Cluster;
 }

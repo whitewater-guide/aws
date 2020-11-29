@@ -19,11 +19,13 @@ const app = new cdk.App();
 // });
 
 new RootStack(app, 'Dev', {
-  topLevelDomain: 'whitewater-dev.com',
-  isDev: true,
+  config: {
+    topLevelDomain: 'whitewater-dev.com',
+    isDev: true,
+    wildcardCertArn: devWildcardCertArn,
+  },
   env: {
     account: devAccount,
     region: 'us-east-1',
   },
-  wildcardCertArn: devWildcardCertArn,
 });

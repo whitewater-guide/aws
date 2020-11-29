@@ -1,6 +1,7 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as cdk from '@aws-cdk/core';
 
+import { SSM } from '../SSM';
 import { Service } from './Service';
 
 export class PGAdmin extends Service {
@@ -8,12 +9,15 @@ export class PGAdmin extends Service {
     super(scope, {
       cluster,
       healthCheck: '/misc/ping',
-      image: 'dpage/pgadmin4:4.25',
+      image: 'dpage/pgadmin4:4.28',
       name: 'pgadmin',
       port: 80,
-      environment: {
-        PGADMIN_DEFAULT_EMAIL: 'admin@admin.com',
-        PGADMIN_DEFAULT_PASSWORD: 'PGADMIN_DEFAULT_PASSWORD',
+      secrets: {
+        PGADMIN_DEFAULT_EMAIL: SSM.secret(scope, SSM.PGADMIN_DEFAULT_EMAIL),
+        PGADMIN_DEFAULT_PASSWORD: SSM.secret(
+          scope,
+          SSM.PGADMIN_DEFAULT_PASSWORD,
+        ),
       },
     });
   }
