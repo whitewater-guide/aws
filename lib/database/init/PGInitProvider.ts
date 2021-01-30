@@ -34,7 +34,9 @@ export default class PGInitProvider extends cdk.Construct {
       onEventHandler: new lambda.NodejsFunction(this, 'PGInitLambda', {
         entry: path.resolve(__dirname, 'lambda.ts'),
         handler: 'onEvent',
-        externalModules: ['aws-sdk', 'pg-native'],
+        bundling: {
+          externalModules: ['aws-sdk', 'pg-native'],
+        },
         vpc,
         vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE },
         initialPolicy: [
