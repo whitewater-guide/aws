@@ -1,6 +1,5 @@
 import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
-import { AutoDeleteBucket } from '@mobileposse/auto-delete-bucket';
 
 import { Config } from '../config';
 import { BucketDistribution } from './BucketDistribution';
@@ -14,9 +13,7 @@ export class Buckets {
     const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const isDev = Config.get(scope, 'isDev');
 
-    const BucketClass = isDev ? AutoDeleteBucket : s3.Bucket;
-
-    this.contentBucket = new BucketClass(scope, 'ContentBucket', {
+    this.contentBucket = new s3.Bucket(scope, 'ContentBucket', {
       bucketName: `content.${topLevelDomain}`,
       // Use PresignedPostPolicy to add content
       // Use cloudfront to access content
@@ -31,6 +28,7 @@ export class Buckets {
       removalPolicy: isDev
         ? cdk.RemovalPolicy.DESTROY
         : cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: isDev,
       cors: [
         {
           allowedMethods: [
@@ -46,21 +44,23 @@ export class Buckets {
       ],
     });
 
-    this.landingBucket = new BucketClass(scope, 'LandingBucket', {
+    this.landingBucket = new s3.Bucket(scope, 'LandingBucket', {
       bucketName: topLevelDomain,
       publicReadAccess: true,
       removalPolicy: isDev
         ? cdk.RemovalPolicy.DESTROY
         : cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: isDev,
     });
     new BucketDistribution(scope, this.landingBucket);
 
-    this.adminBucket = new BucketClass(scope, 'AdminBucket', {
+    this.adminBucket = new s3.Bucket(scope, 'AdminBucket', {
       bucketName: `admin.${topLevelDomain}`,
       publicReadAccess: true,
       removalPolicy: isDev
         ? cdk.RemovalPolicy.DESTROY
         : cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: isDev,
     });
     new BucketDistribution(scope, this.adminBucket, 'admin');
   }
