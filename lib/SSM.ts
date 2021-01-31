@@ -1,12 +1,9 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as ssm from '@aws-cdk/aws-ssm';
 import * as cdk from '@aws-cdk/core';
-import * as cr from '@aws-cdk/custom-resources';
 import { camelCase, upperFirst } from 'lodash';
 
 export class SSM {
-  private static _secretResources = new Map<string, cr.AwsCustomResource>();
-
   public static MAIL_SMTP_SERVER = 'MAIL_SMTP_SERVER';
   public static MAIL_PASSWORD = 'MAIL_PASSWORD';
   public static MAIL_NOREPLY_BOX = 'MAIL_NOREPLY_BOX';
