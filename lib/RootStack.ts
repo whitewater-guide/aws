@@ -4,6 +4,7 @@ import { Config } from './config';
 import { DatabaseStack } from './database';
 import { NetworkingStack } from './networking';
 import { ServicesStack } from './services';
+import Tags from './Tags';
 import { AppConfig } from './types';
 import { WebStack } from './web';
 
@@ -35,5 +36,7 @@ export class RootStack extends cdk.Stack {
       contentBucket: web.buckets.contentBucket,
     });
     this.addDependency(services);
+
+    cdk.Tags.of(this).add(...Tags.Stoppable);
   }
 }

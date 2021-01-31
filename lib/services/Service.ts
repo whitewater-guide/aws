@@ -6,6 +6,8 @@ import * as logs from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
 import { upperFirst } from 'lodash';
 
+import Tags from '../Tags';
+
 export interface ServiceProps {
   isDev?: boolean;
   name: string;
@@ -44,7 +46,7 @@ export class Service {
       port,
       cpu,
       memory,
-      desiredCount,
+      desiredCount = 1,
     } = props;
     this._scope = scope;
     this._healthCheck = props.healthCheck;
@@ -89,6 +91,7 @@ export class Service {
       },
       desiredCount,
     });
+    cdk.Tags.of(this._service).add(...Tags.DesiredCount(desiredCount));
 
     this._loadBalancerTargets = [
       this._service.loadBalancerTarget({
