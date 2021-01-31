@@ -21,6 +21,8 @@ export class Gorge extends Service {
       name: 'gorge',
       port: Gorge.PORT,
       command: [
+        '--cache',
+        'inmemory', // in the beginning of 2021 total redis database size on production was 700kb, I think we can afford to fit it in memory
         '--pg-host',
         'postgres.local',
         '--pg-db',
@@ -28,8 +30,6 @@ export class Gorge extends Service {
         '--pg-without-timescale',
         '--db-chunk-size',
         '1000',
-        '--redis-host',
-        'redis.local',
         '--log-level',
         'info',
       ],
