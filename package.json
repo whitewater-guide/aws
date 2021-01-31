@@ -9,8 +9,9 @@
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
-    "start": "ts-node scripts/start-stop.ts start",
-    "stop": "ts-node scripts/start-stop.ts stop"
+    "start": "ts-node scripts/start_stop.ts start",
+    "stop": "ts-node scripts/start_stop.ts stop",
+    "legacy_restore": "ts-node scripts/legacy_restore.ts"
   },
   "dependencies": {
     "@aws-cdk/aws-certificatemanager": "1.87.1",
@@ -23,7 +24,7 @@
     "@aws-cdk/aws-iam": "1.87.1",
     "@aws-cdk/aws-lambda": "1.87.1",
     "@aws-cdk/aws-lambda-nodejs": "1.87.1",
-    "@aws-cdk/aws-logs": "1.87.1",
+    "@aws-cdk/aws-logs": "^1.87.1",
     "@aws-cdk/aws-rds": "1.87.1",
     "@aws-cdk/aws-route53": "1.87.1",
     "@aws-cdk/aws-route53-targets": "1.87.1",
