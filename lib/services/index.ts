@@ -1,3 +1,4 @@
+import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
@@ -23,9 +24,11 @@ export class ServicesStack extends cdk.Stack {
     const { cluster } = props;
 
     const api = new Api(this, props);
-    new Gorge(this, props);
+    const gorge = new Gorge(this, props);
     const imgproxy = new Imgproxy(this, props);
     const pgadmin = new PGAdmin(this, cluster);
+
+    gorge.connections.allowFrom(api, ec2.Port.tcp(Gorge.PORT));
 
     const balancer = new LoadBalancer(this, props);
     balancer.addServiceTarget(100, 'api', api.listenerTargetProps);

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export class Gorge extends Service {
-  private static PORT = 7080;
+  public static PORT = 7080;
 
   constructor(scope: cdk.Construct, props: Props) {
     const { cluster, postgresPassword } = props;
