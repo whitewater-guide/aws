@@ -31,6 +31,7 @@ export class NetworkingStack extends cdk.Stack {
         ),
       }),
     });
+    cdk.Tags.of(vpc).add('wwguide:vpc', 'true');
 
     this.cluster = new Cluster(this, 'Cluster', vpc);
   }

@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import chalk from 'chalk';
 import { program } from 'commander';
+import flatMap from 'lodash/flatMap';
 import waitFor from 'p-wait-for';
 
 AWS.config.region = 'us-east-1';
@@ -141,9 +142,13 @@ class Postgres implements Stoppable {
   private readonly rds = new AWS.RDS();
   private readonly tags = new AWS.ResourceGroupsTaggingAPI();
 
-  private async getInstances(): Promise<AWS.RDS.DBInstance[]> {
+  private async getInstances(enabled: boolean): Promise<AWS.RDS.DBInstance[]> {
     const { DBInstances } = await this.rds.describeDBInstances().promise();
-    return DBInstances ?? [];
+    return (
+      DBInstances?.filter(
+        (i) => i.DBInstanceStatus === (enabled ? 'running' : 'stopped'),
+      ) ?? []
+    );
   }
 
   private async toggleInstance(instance: AWS.RDS.DBInstance, enabled: boolean) {
@@ -181,14 +186,73 @@ class Postgres implements Stoppable {
   }
 
   public async start(): Promise<void> {
-    const instances = await this.getInstances();
+    const instances = await this.getInstances(false);
     await Promise.all(
       instances.map((instance) => this.toggleInstance(instance, true)),
     );
   }
 
   public async stop(): Promise<void> {
-    const instances = await this.getInstances();
+    const instances = await this.getInstances(true);
+    await Promise.all(
+      instances.map((instance) => this.toggleInstance(instance, false)),
+    );
+  }
+}
+
+class NatInstances implements Stoppable {
+  private readonly ec2 = new AWS.EC2();
+
+  private async getInstances(enabled: boolean): Promise<AWS.EC2.Instance[]> {
+    const { Reservations } = await this.ec2.describeInstances().promise();
+    return flatMap(Reservations ?? [], (r) => r.Instances ?? [])
+      .filter((i) => i.Tags?.some((t) => t.Key === 'wwguide:vpc'))
+      .filter((i) => i.State?.Name === (enabled ? 'running' : 'stopped'));
+  }
+
+  private async toggleInstance(instance: AWS.EC2.Instance, enabled: boolean) {
+    const { InstanceId } = instance;
+    if (!InstanceId) {
+      return;
+    }
+    if (enabled) {
+      await this.ec2.startInstances({ InstanceIds: [InstanceId] }).promise();
+    } else {
+      await this.ec2.stopInstances({ InstanceIds: [InstanceId] }).promise();
+    }
+    console.info(
+      `Waiting for EC2 instance ${chalk.yellow(InstanceId)} to ${
+        enabled ? 'start' : 'stop'
+      }`,
+    );
+    await waitFor(
+      async () => {
+        const { Reservations } = await this.ec2
+          .describeInstances({ InstanceIds: [InstanceId] })
+          .promise();
+        return (
+          Reservations?.[0].Instances?.[0].State?.Name ===
+          (enabled ? 'running' : 'stopped')
+        );
+      },
+      { interval: 30000 },
+    );
+    console.info(
+      `${enabled ? 'Started' : 'Stopped'} ec2 instance ${chalk.yellow(
+        InstanceId,
+      )}`,
+    );
+  }
+
+  public async start(): Promise<void> {
+    const instances = await this.getInstances(false);
+    await Promise.all(
+      instances.map((instance) => this.toggleInstance(instance, true)),
+    );
+  }
+
+  public async stop(): Promise<void> {
+    const instances = await this.getInstances(true);
     await Promise.all(
       instances.map((instance) => this.toggleInstance(instance, false)),
     );
@@ -196,6 +260,7 @@ class Postgres implements Stoppable {
 }
 
 const resources: Stoppable[] = [
+  new NatInstances(),
   new Postgres(),
   new ECSServices(),
   new CloudFront(),
