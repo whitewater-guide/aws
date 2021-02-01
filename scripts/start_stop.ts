@@ -146,7 +146,7 @@ class Postgres implements Stoppable {
     const { DBInstances } = await this.rds.describeDBInstances().promise();
     return (
       DBInstances?.filter(
-        (i) => i.DBInstanceStatus === (enabled ? 'running' : 'stopped'),
+        (i) => i.DBInstanceStatus === (enabled ? 'available' : 'stopped'),
       ) ?? []
     );
   }
