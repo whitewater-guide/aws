@@ -61,7 +61,12 @@ export class LoadBalancer {
     this._listener.addTargets(`${prefix}ALBTarget`, {
       ...props,
       priority,
-      hostHeader: `${subdomain}.${this._topLevelDomain}`,
+      conditions: [
+        elbv2.ListenerCondition.hostHeaders([
+          `${subdomain}.${this._topLevelDomain}`,
+        ]),
+        ...(props.conditions ?? []),
+      ],
     });
     new route53.ARecord(this._scope, `${prefix}Route53Record`, {
       zone: this.hostedZone,
