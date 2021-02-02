@@ -2,6 +2,7 @@ import * as cert from '@aws-cdk/aws-certificatemanager';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as origins from '@aws-cdk/aws-cloudfront-origins';
 import * as ecs from '@aws-cdk/aws-ecs';
+import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
 import * as route53 from '@aws-cdk/aws-route53';
 import * as targets from '@aws-cdk/aws-route53-targets';
 import * as s3 from '@aws-cdk/aws-s3';
@@ -17,6 +18,11 @@ interface Props {
 }
 
 export class Imgproxy extends Service {
+  // Restricting access to imgproxy as described in
+  // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/restrict-access-to-load-balancer.html#restrict-alb-add-custom-header
+  private static SECURE_HEADER = 'X-Imgproxy-Cloudfront';
+  private readonly _secureValue: string;
+
   constructor(scope: cdk.Construct, props: Props) {
     const { cluster, contentBucket } = props;
 
@@ -41,10 +47,11 @@ export class Imgproxy extends Service {
       secrets: {
         IMGPROXY_KEY: SSM.secret(scope, SSM.IMGPROXY_KEY),
         IMGPROXY_SALT: SSM.secret(scope, SSM.IMGPROXY_SALT),
-        IMGPROXY_SECRET: SSM.secret(scope, SSM.IMGPROXY_SECRET),
       },
       enableLogging: isDev,
     });
+
+    this._secureValue = Config.get(scope, 'imgproxySecretValue');
 
     contentBucket.grantRead(this.taskRole);
 
@@ -63,8 +70,10 @@ export class Imgproxy extends Service {
       {
         defaultBehavior: {
           origin: new origins.HttpOrigin(`imgproxy.${topLevelDomain}`, {
+            // Restricting access to imgproxy as described in
+            // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/restrict-access-to-load-balancer.html#restrict-alb-add-custom-header
             customHeaders: {
-              Authorization: `Bearer ${SSM.secret(scope, SSM.IMGPROXY_SECRET)}`,
+              [Imgproxy.SECURE_HEADER]: this._secureValue,
             },
           }),
         },
@@ -89,5 +98,18 @@ export class Imgproxy extends Service {
       ),
       zone: hostedZone,
     });
+  }
+
+  public get listenerTargetProps(): elbv2.AddApplicationTargetsProps {
+    return {
+      ...super.listenerTargetProps,
+      conditions: [
+        // Restricting access to imgproxy as described in
+        // https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/restrict-access-to-load-balancer.html#restrict-alb-add-custom-header
+        elbv2.ListenerCondition.httpHeader(Imgproxy.SECURE_HEADER, [
+          this._secureValue,
+        ]),
+      ],
+    };
   }
 }

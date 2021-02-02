@@ -13,7 +13,6 @@ export class SSM {
 
   public static IMGPROXY_KEY = 'IMGPROXY_KEY';
   public static IMGPROXY_SALT = 'IMGPROXY_SALT';
-  public static IMGPROXY_SECRET = 'IMGPROXY_SECRET';
 
   public static ACCESS_TOKEN_SECRET = 'ACCESS_TOKEN_SECRET';
   public static ACCESS_TOKEN_EXPIRES = 'ACCESS_TOKEN_EXPIRES';
