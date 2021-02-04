@@ -9,7 +9,7 @@ export class PGAdmin extends Service {
     super(scope, {
       cluster,
       healthCheck: '/misc/ping',
-      image: 'dpage/pgadmin4:4.28',
+      image: 'dpage/pgadmin4:4.30',
       name: 'pgadmin',
       port: 80,
       secrets: {
