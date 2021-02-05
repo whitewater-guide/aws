@@ -1,3 +1,4 @@
+import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 
@@ -15,14 +16,11 @@ export class Buckets {
 
     this.contentBucket = new s3.Bucket(scope, 'ContentBucket', {
       bucketName: `content.${topLevelDomain}`,
-      // Use PresignedPostPolicy to add content
-      // Use cloudfront to access content
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       lifecycleRules: [
         {
           enabled: true,
           prefix: 'temp/',
-          expiration: cdk.Duration.days(14),
+          expiration: cdk.Duration.days(1),
         },
       ],
       removalPolicy: isDev
@@ -43,6 +41,16 @@ export class Buckets {
         },
       ],
     });
+    // Allow everyone read images from temp folder
+    // this is the best way to allow uploader to see the preview
+    // without messing with aws user identities
+    this.contentBucket.addToResourcePolicy(
+      new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [this.contentBucket.arnForObjects('temp/*')],
+        principals: [new iam.AnyPrincipal()],
+      }),
+    );
 
     this.landingBucket = new s3.Bucket(scope, 'LandingBucket', {
       bucketName: topLevelDomain,
