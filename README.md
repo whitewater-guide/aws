@@ -10,7 +10,7 @@ This is AWS infrastructure for whitewater.guide implemented using aws-cdk
 
 ## Postgres restore
 
-TODO
+Use `yarn legacy_restore`
 
 ## Starting and stopping stack
 
