@@ -27,7 +27,7 @@ export class NetworkingStack extends cdk.Stack {
       natGatewayProvider: ec2.NatProvider.instance({
         instanceType: ec2.InstanceType.of(
           ec2.InstanceClass.T3,
-          ec2.InstanceSize.MICRO,
+          ec2.InstanceSize.NANO,
         ),
       }),
     });

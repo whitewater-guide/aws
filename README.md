@@ -10,7 +10,17 @@ This is AWS infrastructure for whitewater.guide implemented using aws-cdk
 
 ## Postgres restore
 
-Use `yarn legacy_restore`
+### Legacy
+
+I used `yarn legacy_restore` to migrate from v2. It's no longer needed
+
+### Prod to staging
+
+TODO
+
+### Prod to dev
+
+TODO
 
 ## Starting and stopping stack
 

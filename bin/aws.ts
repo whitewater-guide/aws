@@ -7,17 +7,26 @@ import { RootStack } from '../lib/RootStack';
 import {
   devAccount,
   devImgproxySecretValue,
-  devWildcardCertArn,
+  prodAccount,
+  prodImgproxySecretValue,
+  prodWildcardCertArn,
 } from './aws-accounts';
+import { devWildcardCertArn } from './aws-accounts.example';
 
 const app = new cdk.App();
 
-// Deployed manually once to avoid hitting limit on number of cert requests
-// import CertificatesStack from '../lib/certificates';
 // new CertificatesStack(app, 'CertificatesDev', {
 //   topLevelDomain: 'whitewater-dev.com',
 //   env: {
 //     account: devAccount,
+//     region: 'us-east-1',
+//   },
+// });
+
+// new CertificatesStack(app, 'CertificatesProd', {
+//   topLevelDomain: 'whitewater.guide',
+//   env: {
+//     account: prodAccount,
 //     region: 'us-east-1',
 //   },
 // });
@@ -31,6 +40,19 @@ new RootStack(app, 'Dev', {
   },
   env: {
     account: devAccount,
+    region: 'us-east-1',
+  },
+});
+
+new RootStack(app, 'Prod', {
+  config: {
+    topLevelDomain: 'whitewater.guide',
+    isDev: true,
+    wildcardCertArn: prodWildcardCertArn,
+    imgproxySecretValue: prodImgproxySecretValue,
+  },
+  env: {
+    account: prodAccount,
     region: 'us-east-1',
   },
 });
