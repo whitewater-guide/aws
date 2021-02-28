@@ -47,7 +47,7 @@ new RootStack(app, 'Dev', {
 new RootStack(app, 'Prod', {
   config: {
     topLevelDomain: 'whitewater.guide',
-    isDev: true,
+    isDev: false,
     wildcardCertArn: prodWildcardCertArn,
     imgproxySecretValue: prodImgproxySecretValue,
   },
