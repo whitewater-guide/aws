@@ -7,6 +7,7 @@ import { Config } from '../config';
 import { SSM } from '../SSM';
 import { Service } from './Service';
 
+
 interface Props {
   cluster: ecs.Cluster;
   postgresPassword: secretsmanager.ISecret;
@@ -19,7 +20,7 @@ export class Api extends Service {
     super(scope, {
       cluster,
       healthCheck: '/ping',
-      image: 'ghcr.io/whitewater-guide/backend:0.0.468',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.469',
       name: 'api',
       port: 3333,
       environment: {
