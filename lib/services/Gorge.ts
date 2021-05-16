@@ -17,7 +17,7 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: '/version',
-      image: 'ghcr.io/whitewater-guide/gorge:1.19.5',
+      image: 'ghcr.io/whitewater-guide/gorge:1.23.0',
       name: 'gorge',
       port: Gorge.PORT,
       command: [

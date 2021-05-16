@@ -1,5 +1,6 @@
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as ec2 from '@aws-cdk/aws-ec2';
+import * as logs from '@aws-cdk/aws-logs';
 import * as rds from '@aws-cdk/aws-rds';
 import * as cloudmap from '@aws-cdk/aws-servicediscovery';
 import * as cdk from '@aws-cdk/core';
@@ -28,6 +29,7 @@ export class Postgres {
       credentials: rds.Credentials.fromGeneratedSecret('postgres', {
         excludeCharacters: ' =.,%+~^`#$&*()|[]{}:;<>?!\'/@"\\',
       }),
+      cloudwatchLogsRetention: logs.RetentionDays.ONE_DAY,
       backupRetention: isDev ? cdk.Duration.days(0) : cdk.Duration.days(7),
       deleteAutomatedBackups: isDev,
       deletionProtection: !isDev,

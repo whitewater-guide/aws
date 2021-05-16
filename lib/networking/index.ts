@@ -1,6 +1,7 @@
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as cdk from '@aws-cdk/core';
+
 import Cluster from './Cluster';
 
 export interface NetworkingStackProps {
@@ -25,7 +26,7 @@ export class NetworkingStack extends cdk.Stack {
       natGatewayProvider: ec2.NatProvider.instance({
         instanceType: ec2.InstanceType.of(
           ec2.InstanceClass.T3,
-          ec2.InstanceSize.MICRO,
+          ec2.InstanceSize.NANO,
         ),
       }),
     });
