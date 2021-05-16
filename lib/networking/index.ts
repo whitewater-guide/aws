@@ -1,7 +1,6 @@
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as cdk from '@aws-cdk/core';
-
 import Cluster from './Cluster';
 
 export interface NetworkingStackProps {
@@ -22,7 +21,6 @@ export class NetworkingStack extends cdk.Stack {
 
     const vpc = new ec2.Vpc(this, 'VPC', {
       maxAzs,
-      // We only need NAT to pull docker images
       natGateways: 1,
       natGatewayProvider: ec2.NatProvider.instance({
         instanceType: ec2.InstanceType.of(
