@@ -81,6 +81,10 @@ export class Imgproxy extends Service {
         certificate,
       },
     );
+    // Static images are loaded directly from the bucket (instead of going through imgproxy)
+    distribution.addBehavior('static/*', new origins.S3Origin(contentBucket), {
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+    });
 
     const hostedZone = route53.HostedZone.fromLookup(
       scope,

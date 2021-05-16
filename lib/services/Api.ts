@@ -19,7 +19,7 @@ export class Api extends Service {
     super(scope, {
       cluster,
       healthCheck: '/ping',
-      image: 'ghcr.io/whitewater-guide/backend:0.0.460',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.469',
       name: 'api',
       port: 3333,
       environment: {
