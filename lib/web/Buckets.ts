@@ -9,6 +9,7 @@ export class Buckets {
   public readonly contentBucket: s3.Bucket;
   public readonly adminBucket: s3.Bucket;
   public readonly landingBucket: s3.Bucket;
+  public readonly backupsBucket: s3.Bucket;
 
   constructor(scope: cdk.Construct) {
     const topLevelDomain = Config.get(scope, 'topLevelDomain');
@@ -71,5 +72,19 @@ export class Buckets {
       autoDeleteObjects: isDev,
     });
     new BucketDistribution(scope, this.adminBucket, 'admin');
+
+    this.backupsBucket = new s3.Bucket(scope, 'BackupsBucket', {
+      bucketName: `backups.${topLevelDomain}`,
+      removalPolicy: isDev
+        ? cdk.RemovalPolicy.DESTROY
+        : cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: isDev,
+      lifecycleRules: [
+        {
+          enabled: true,
+          expiration: cdk.Duration.days(180),
+        },
+      ],
+    });
   }
 }

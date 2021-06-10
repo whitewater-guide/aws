@@ -1,6 +1,7 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as cdk from '@aws-cdk/core';
 
+import { BackupTask } from './BackupTask';
 import { PGInit } from './init';
 import { LegacyRestoreTask } from './LegacyRestoreTask';
 import { Postgres } from './Postgres';
@@ -25,6 +26,11 @@ export class DatabaseStack extends cdk.Stack {
     });
 
     new LegacyRestoreTask(this, {
+      password: ecs.Secret.fromSecretsManager(this.postgres.secret, 'password'),
+      host: this.postgres.host,
+    });
+
+    new BackupTask(this, {
       password: ecs.Secret.fromSecretsManager(this.postgres.secret, 'password'),
       host: this.postgres.host,
     });
