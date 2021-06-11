@@ -21,7 +21,7 @@ export class BackupTask extends ecs.FargateTaskDefinition {
 
     this.addContainer('BackupContainer', {
       image: ecs.ContainerImage.fromRegistry(
-        'ghcr.io/whitewater-guide/pg_dump_restore:2.0.4',
+        'ghcr.io/whitewater-guide/pg_dump_restore:2.0.5',
       ),
       environment: {
         PGHOST: host,
