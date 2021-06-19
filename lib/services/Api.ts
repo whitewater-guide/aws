@@ -9,13 +9,13 @@ import { Service } from './Service';
 
 interface Props {
   cluster: ecs.Cluster;
-  postgresPassword: secretsmanager.ISecret;
+  postgresSecret: secretsmanager.ISecret;
   contentBucket: s3.Bucket;
 }
 
 export class Api extends Service {
   constructor(scope: cdk.Construct, props: Props) {
-    const { cluster, postgresPassword, contentBucket } = props;
+    const { cluster, postgresSecret, contentBucket } = props;
     super(scope, {
       cluster,
       healthCheck: '/ping',
@@ -39,7 +39,7 @@ export class Api extends Service {
       },
       secrets: {
         POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
-          postgresPassword,
+          postgresSecret,
           'password',
         ),
         MAIL_PASSWORD: SSM.secret(scope, SSM.MAIL_PASSWORD),

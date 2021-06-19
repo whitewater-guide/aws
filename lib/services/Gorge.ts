@@ -5,7 +5,7 @@ import * as cdk from '@aws-cdk/core';
 import { Service } from './Service';
 
 interface Props {
-  postgresPassword: secretsmanager.ISecret;
+  postgresSecret: secretsmanager.ISecret;
   cluster: ecs.Cluster;
 }
 
@@ -13,7 +13,7 @@ export class Gorge extends Service {
   public static PORT = 7080;
 
   constructor(scope: cdk.Construct, props: Props) {
-    const { cluster, postgresPassword } = props;
+    const { cluster, postgresSecret } = props;
     super(scope, {
       cluster,
       healthCheck: '/version',
@@ -35,7 +35,7 @@ export class Gorge extends Service {
       ],
       secrets: {
         POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
-          postgresPassword,
+          postgresSecret,
           'password',
         ),
       },

@@ -1,18 +1,18 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as iam from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
+import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import * as cdk from '@aws-cdk/core';
 
 import { Config } from '../config';
 
 export interface PGRestoreTaskProps {
-  password: ecs.Secret;
-  host: string;
+  postgresSecret: secretsmanager.ISecret;
 }
 
-export class BackupTask extends ecs.FargateTaskDefinition {
+export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
   constructor(scope: cdk.Construct, props: PGRestoreTaskProps) {
-    const { password, host } = props;
+    const { postgresSecret } = props;
 
     super(scope, 'BackupTaskDef', { cpu: 1024, memoryLimitMiB: 2048 });
 
@@ -24,12 +24,15 @@ export class BackupTask extends ecs.FargateTaskDefinition {
         'ghcr.io/whitewater-guide/pg_dump_restore:2.0.6',
       ),
       environment: {
-        PGHOST: host,
         PGUSER: 'postgres',
         S3_BUCKET: backupsBucket,
       },
       secrets: {
-        POSTGRES_PASSWORD: password,
+        PGHOST: ecs.Secret.fromSecretsManager(postgresSecret, 'host'),
+        POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
+          postgresSecret,
+          'password',
+        ),
       },
       logging: new ecs.AwsLogDriver({
         streamPrefix: 'Backup',
