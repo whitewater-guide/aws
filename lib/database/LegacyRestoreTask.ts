@@ -2,13 +2,13 @@ import * as ecs from '@aws-cdk/aws-ecs';
 import * as logs from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
 
-export interface PGRestoreTaskProps {
+export interface LegacyRestoreTaskProps {
   password: ecs.Secret;
   host: string;
 }
 
 export class LegacyRestoreTask extends ecs.FargateTaskDefinition {
-  constructor(scope: cdk.Construct, props: PGRestoreTaskProps) {
+  constructor(scope: cdk.Construct, props: LegacyRestoreTaskProps) {
     const { password, host } = props;
 
     super(scope, 'LegacyRestoreTaskDef', { cpu: 1024, memoryLimitMiB: 2048 });
