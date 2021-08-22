@@ -1,6 +1,8 @@
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
+import * as s3deploy from '@aws-cdk/aws-s3-deployment';
 import * as cdk from '@aws-cdk/core';
+import * as path from 'path';
 
 import { Config } from '../config';
 import { BucketDistribution } from './BucketDistribution';
@@ -8,6 +10,7 @@ import { BucketDistribution } from './BucketDistribution';
 export class Buckets {
   public readonly contentBucket: s3.Bucket;
   public readonly adminBucket: s3.Bucket;
+  public readonly appBucket: s3.Bucket;
   public readonly landingBucket: s3.Bucket;
   public readonly backupsBucket: s3.Bucket;
 
@@ -72,6 +75,27 @@ export class Buckets {
       autoDeleteObjects: isDev,
     });
     new BucketDistribution(scope, this.adminBucket, 'admin');
+
+    // This bucket is used to serve .well-known for mobile apps
+    // (apple-app-site-association for apple and assetlinks.json for android)
+    this.appBucket = new s3.Bucket(scope, 'AppBucket', {
+      bucketName: `app.${topLevelDomain}`,
+      publicReadAccess: true,
+      removalPolicy: isDev
+        ? cdk.RemovalPolicy.DESTROY
+        : cdk.RemovalPolicy.RETAIN,
+      autoDeleteObjects: isDev,
+    });
+    const appDistribution = new BucketDistribution(
+      scope,
+      this.appBucket,
+      'app',
+    );
+    new s3deploy.BucketDeployment(scope, 'AppDeploy', {
+      sources: [s3deploy.Source.asset(path.resolve(__dirname, 'app'))],
+      destinationBucket: this.appBucket,
+      distribution: appDistribution,
+    });
 
     this.backupsBucket = new s3.Bucket(scope, 'BackupsBucket', {
       bucketName: `backups.${topLevelDomain}`,
