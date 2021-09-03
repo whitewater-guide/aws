@@ -31,6 +31,7 @@ export class Gorge extends Service {
         '--db-chunk-size',
         '1000',
         '--log-level',
+        // Warning! When set to debug, this produces hellish amount of logs, which will cost you some $$$ in AWS CloudWatch
         'info',
       ],
       secrets: {
