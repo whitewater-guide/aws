@@ -9,6 +9,7 @@ export class PGAdmin extends Service {
     super(scope, {
       cluster,
       healthCheck: '/misc/ping',
+      // This is the latest version that works: https://stackoverflow.com/questions/69604497/healthcheck-request-timed-out-when-running-pgadminin-ecs
       image: 'dpage/pgadmin4:4.30',
       name: 'pgadmin',
       port: 80,
