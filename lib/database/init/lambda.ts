@@ -9,7 +9,7 @@ export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
     return;
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const properties = (event.ResourceProperties as any) as PGInitResourceProps;
+  const properties = event.ResourceProperties as any as PGInitResourceProps;
   console.info('Initializing postgres', properties);
   const secretsManager = new AWS.SecretsManager();
   const secret = await secretsManager
@@ -33,9 +33,14 @@ export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
   await client.query(`CREATE EXTENSION IF NOT EXISTS "pg_trgm";
   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
   CREATE EXTENSION IF NOT EXISTS "postgis";
+  CREATE EXTENSION IF NOT EXISTS "fuzzystrmatch";
+  CREATE EXTENSION IF NOT EXISTS "postgis_tiger_geocoder";
+  CREATE EXTENSION IF NOT EXISTS "postgis_topology";
+  CREATE EXTENSION IF NOT EXISTS "pg_partman";
   `);
   await client.query('CREATE DATABASE wwguide');
   await client.query('CREATE DATABASE gorge');
   await client.end();
+
   console.info('initialized pg extensions and databases');
 };

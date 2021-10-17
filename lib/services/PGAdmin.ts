@@ -19,6 +19,7 @@ export class PGAdmin extends Service {
           SSM.PGADMIN_DEFAULT_PASSWORD,
         ),
       },
+      // enableLogging: true,
     });
   }
 }

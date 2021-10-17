@@ -7,6 +7,9 @@ export interface LegacyRestoreTaskProps {
   host: string;
 }
 
+/**
+ * This task definition was used to migrate old (pre-AWS) backup into AWS RDS
+ */
 export class LegacyRestoreTask extends ecs.FargateTaskDefinition {
   constructor(scope: cdk.Construct, props: LegacyRestoreTaskProps) {
     const { password, host } = props;

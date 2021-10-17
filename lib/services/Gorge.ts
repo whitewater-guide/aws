@@ -17,7 +17,7 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: '/version',
-      image: 'ghcr.io/whitewater-guide/gorge:1.27.0',
+      image: 'ghcr.io/whitewater-guide/gorge:2.0.8',
       name: 'gorge',
       port: Gorge.PORT,
       command: [
@@ -27,7 +27,6 @@ export class Gorge extends Service {
         'postgres.local',
         '--pg-db',
         'gorge',
-        '--pg-without-timescale',
         '--db-chunk-size',
         '1000',
         '--log-level',

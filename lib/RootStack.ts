@@ -32,7 +32,6 @@ export class RootStack extends cdk.Stack {
     const services = new ServicesStack(this, 'Services', {
       ...props,
       cluster: net.cluster,
-      postgresSecret: db.postgres.secret,
       contentBucket: web.buckets.contentBucket,
     });
     this.addDependency(services);

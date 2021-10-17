@@ -30,7 +30,7 @@ export interface ServiceProps {
 export class Service {
   private readonly _loadBalancerTargets: ecs.IEcsLoadBalancerTarget[];
   private readonly _taskDefinition: ecs.FargateTaskDefinition;
-  private readonly _healthCheck: string;
+  private readonly _healthCheck?: string;
   private readonly _port: number;
   private readonly _service: ecs.FargateService;
   protected readonly _scope: cdk.Construct;
@@ -113,6 +113,7 @@ export class Service {
         path: this._healthCheck,
         protocol: elbv2.Protocol.HTTP,
         port: this._port.toString(10),
+        healthyHttpCodes: '200-399',
       },
     };
   }
