@@ -9,7 +9,6 @@ import * as path from 'path';
 interface PGInitProviderProps {
   vpc: ec2.IVpc;
   isDev?: boolean;
-  postgresSecretArn: string;
 }
 
 export default class PGInitProvider extends cdk.Construct {
@@ -29,7 +28,9 @@ export default class PGInitProvider extends cdk.Construct {
 
   constructor(scope: cdk.Construct, id: string, props: PGInitProviderProps) {
     super(scope, id);
-    const { postgresSecretArn, vpc } = props;
+    const { vpc } = props;
+    const stack = cdk.Stack.of(scope);
+
     this._provider = new cr.Provider(this, 'PGInitProvider', {
       onEventHandler: new lambda.NodejsFunction(this, 'PGInitLambda', {
         entry: path.resolve(__dirname, 'lambda.ts'),
@@ -45,7 +46,16 @@ export default class PGInitProvider extends cdk.Construct {
               'secretsmanager:GetSecretValue',
               'secretsmanager:DescribeSecret',
             ],
-            resources: [postgresSecretArn],
+            resources: [
+              '*',
+              // TODO: use secret name now
+              // stack.formatArn({
+              //   service: 'secretsmanager',
+              //   resource: 'secret',
+              //   arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
+              //   resourceName: scope.toString().replace('/', '') + '*',
+              // }),
+            ],
           }),
         ],
         timeout: cdk.Duration.minutes(15),

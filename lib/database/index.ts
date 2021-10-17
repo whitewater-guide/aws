@@ -1,32 +1,34 @@
-import * as ecs from '@aws-cdk/aws-ecs';
+import { ScheduledFargateTask } from '@aws-cdk/aws-ecs-patterns';
+import * as events from '@aws-cdk/aws-events';
 import * as cdk from '@aws-cdk/core';
 
+import { Config } from '../config';
+import { BackupTaskDefinition } from './BackupTaskDefinition';
 import { PGInit } from './init';
-import { LegacyRestoreTask } from './LegacyRestoreTask';
-import { Postgres } from './Postgres';
+import { Postgres13 } from './Postgres13';
 import { DatabaseProps } from './types';
 
 export class DatabaseStack extends cdk.Stack {
-  public readonly postgres: Postgres;
-
   constructor(
     scope: cdk.Construct,
     id: string,
     props: DatabaseProps & cdk.StackProps,
   ) {
     super(scope, id, props);
-    this.postgres = new Postgres(this, props);
+    const isDev = Config.get(scope, 'isDev');
 
-    new PGInit(this, 'PGInit', {
+    const pg13 = new Postgres13(this, props);
+    new PGInit(this, 'PG13Init', { cluster: props.cluster, database: pg13 });
+
+    new ScheduledFargateTask(this, 'ScheduledBackup', {
       cluster: props.cluster,
-      pgSecret: this.postgres.secret,
-      pgHost: this.postgres.host,
-      pgPort: this.postgres.port,
-    });
-
-    new LegacyRestoreTask(this, {
-      password: ecs.Secret.fromSecretsManager(this.postgres.secret, 'password'),
-      host: this.postgres.host,
+      scheduledFargateTaskDefinitionOptions: {
+        taskDefinition: new BackupTaskDefinition(this, {
+          postgresSecret: pg13.secret,
+        }),
+      },
+      schedule: events.Schedule.rate(cdk.Duration.hours(24)),
+      enabled: !isDev,
     });
   }
 }

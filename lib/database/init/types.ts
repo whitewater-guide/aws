@@ -3,9 +3,11 @@ import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 
 export interface PGInitProps {
   cluster: ecs.Cluster;
-  pgSecret: secretsmanager.ISecret;
-  pgHost: string;
-  pgPort: string;
+  database: {
+    secret: secretsmanager.ISecret;
+    host: string;
+    port: string;
+  };
 }
 
 export interface PGInitResourceProps {

@@ -6,12 +6,12 @@ import * as cdk from '@aws-cdk/core';
 
 import { Config } from '../config';
 
-export interface PGRestoreTaskProps {
+export interface BackupTaskDefinitionProps {
   postgresSecret: secretsmanager.ISecret;
 }
 
 export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
-  constructor(scope: cdk.Construct, props: PGRestoreTaskProps) {
+  constructor(scope: cdk.Construct, props: BackupTaskDefinitionProps) {
     const { postgresSecret } = props;
 
     super(scope, 'BackupTaskDef', { cpu: 1024, memoryLimitMiB: 2048 });
@@ -21,11 +21,12 @@ export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
 
     this.addContainer('BackupContainer', {
       image: ecs.ContainerImage.fromRegistry(
-        'ghcr.io/whitewater-guide/pg_dump_restore:2.0.6',
+        'ghcr.io/whitewater-guide/pg_dump_restore:3.6.1',
       ),
       environment: {
         PGUSER: 'postgres',
         S3_BUCKET: backupsBucket,
+        S3_PREFIX: 'v3/',
       },
       secrets: {
         PGHOST: ecs.Secret.fromSecretsManager(postgresSecret, 'host'),

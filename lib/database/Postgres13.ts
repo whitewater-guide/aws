@@ -6,19 +6,31 @@ import * as cloudmap from '@aws-cdk/aws-servicediscovery';
 import * as cdk from '@aws-cdk/core';
 
 import { Config } from '../config';
+import { POSTGRES_SECRET_NAME } from './constants';
 import { DatabaseProps } from './types';
 
-export class Postgres {
+export class Postgres13 {
   private readonly _instance: rds.DatabaseInstance;
   private readonly _scope: cdk.Construct;
 
   constructor(scope: cdk.Construct, { cluster }: DatabaseProps) {
     const isDev = Config.get(scope, 'isDev');
     this._scope = scope;
-    this._instance = new rds.DatabaseInstance(scope, 'Postgres', {
-      engine: rds.DatabaseInstanceEngine.postgres({
-        version: rds.PostgresEngineVersion.VER_12_4,
-      }),
+
+    const engine = rds.DatabaseInstanceEngine.postgres({
+      version: rds.PostgresEngineVersion.VER_13_4,
+    });
+
+    const parameterGroup = new rds.ParameterGroup(scope, 'PG13Params', {
+      engine,
+      parameters: {
+        shared_preload_libraries: 'pg_cron',
+      },
+    });
+
+    this._instance = new rds.DatabaseInstance(scope, 'Pg13', {
+      engine,
+      parameterGroup,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T3,
         ec2.InstanceSize.MICRO,
@@ -27,22 +39,30 @@ export class Postgres {
       multiAz: false,
       databaseName: 'postgres',
       credentials: rds.Credentials.fromGeneratedSecret('postgres', {
+        secretName: POSTGRES_SECRET_NAME,
         excludeCharacters: ' =.,%+~^`#$&*()|[]{}:;<>?!\'/@"\\',
       }),
       cloudwatchLogsRetention: logs.RetentionDays.ONE_DAY,
-      backupRetention: isDev ? cdk.Duration.days(0) : cdk.Duration.days(7),
+      backupRetention: isDev ? cdk.Duration.days(0) : cdk.Duration.days(3),
       deleteAutomatedBackups: isDev,
       deletionProtection: !isDev,
       removalPolicy: isDev
         ? cdk.RemovalPolicy.DESTROY
         : cdk.RemovalPolicy.SNAPSHOT,
+      allocatedStorage: 20,
+      maxAllocatedStorage: isDev ? 50 : 100,
     });
     // we're in private subnet
     this._instance.connections.allowDefaultPortFromAnyIpv4();
     // Add alarm for high CPU
-    new cloudwatch.Alarm(scope, 'PostgresHighCPU', {
+    new cloudwatch.Alarm(scope, 'Pg13HighCPU', {
       metric: this._instance.metricCPUUtilization(),
       threshold: 90,
+      evaluationPeriods: 1,
+    });
+    new cloudwatch.Alarm(scope, 'Pg13LowStorage', {
+      metric: this._instance.metricFreeStorageSpace(),
+      threshold: 1024 * 1024 * 1024 * 5,
       evaluationPeriods: 1,
     });
 
