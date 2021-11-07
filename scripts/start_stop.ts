@@ -6,6 +6,10 @@ import waitFor from 'p-wait-for';
 
 AWS.config.region = 'us-east-1';
 
+interface CommonOptions {
+  profile: string;
+}
+
 interface Stoppable {
   start: () => Promise<void>;
   stop: () => Promise<void>;
@@ -269,7 +273,11 @@ const resources: Stoppable[] = [
 program
   .command('start')
   .description('Starts stopped stack')
-  .action(async () => {
+  .requiredOption('--profile <profile>', 'aws profile to use')
+  .action(async ({ profile }: CommonOptions) => {
+    const credentials = new AWS.SharedIniFileCredentials({ profile });
+    console.info(chalk`Using AWS Profile: {green ${profile}}`);
+    AWS.config.credentials = credentials;
     console.info(chalk.green('Starting...'));
     for (const r of resources) {
       await r.start();
@@ -280,7 +288,11 @@ program
 program
   .command('stop')
   .description('Stops started stack')
-  .action(async () => {
+  .requiredOption('--profile <profile>', 'aws profile to use')
+  .action(async ({ profile }: CommonOptions) => {
+    const credentials = new AWS.SharedIniFileCredentials({ profile });
+    console.info(chalk`Using AWS Profile: {green ${profile}}`);
+    AWS.config.credentials = credentials;
     console.info(chalk.red('Stopping...'));
     const res = resources.slice().reverse();
     for (const r of res) {
