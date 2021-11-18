@@ -13,6 +13,7 @@ export interface BackupTaskDefinitionProps {
 export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
   constructor(scope: cdk.Construct, props: BackupTaskDefinitionProps) {
     const { postgresSecret } = props;
+    const crossAccount = Config.get(scope, 'crossAccount');
 
     super(scope, 'BackupTaskDef', { cpu: 1024, memoryLimitMiB: 2048 });
 
@@ -39,7 +40,7 @@ export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
         streamPrefix: 'Backup',
         logRetention: logs.RetentionDays.ONE_DAY,
       }),
-      entryPoint: ['/app/backup.sh'],
+      command: ['/app/backup.sh'],
     });
 
     this.taskRole.addToPrincipalPolicy(
@@ -54,5 +55,24 @@ export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
         resources: [`arn:aws:s3:::${backupsBucket}/*`],
       }),
     );
+
+    // Allow restore task in dev deployment to pull backups from prod deployment
+    if (crossAccount?.prodBackupsBucketName) {
+      this.taskRole.addToPrincipalPolicy(
+        new iam.PolicyStatement({
+          actions: ['s3:ListBucket'],
+          resources: [`arn:aws:s3:::${crossAccount.prodBackupsBucketName}`],
+        }),
+      );
+      this.taskRole.addToPrincipalPolicy(
+        new iam.PolicyStatement({
+          actions: ['s3:GetObject'],
+          resources: [`arn:aws:s3:::${crossAccount.prodBackupsBucketName}/*`],
+        }),
+      );
+      new cdk.CfnOutput(this, 'TaskRoleOutput', {
+        value: this.taskRole.roleArn,
+      });
+    }
   }
 }

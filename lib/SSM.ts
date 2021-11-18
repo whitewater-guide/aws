@@ -1,7 +1,8 @@
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as ssm from '@aws-cdk/aws-ssm';
 import * as cdk from '@aws-cdk/core';
-import { camelCase, upperFirst } from 'lodash';
+import camelCase from 'lodash/camelCase';
+import upperFirst from 'lodash/upperFirst';
 
 export class SSM {
   public static MAIL_SMTP_SERVER = 'MAIL_SMTP_SERVER';

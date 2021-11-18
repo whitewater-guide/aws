@@ -6,12 +6,13 @@ import * as cdk from '@aws-cdk/core';
 import { RootStack } from '../lib/RootStack';
 import {
   devAccount,
+  devBackupTaskRoleArn,
   devImgproxySecretValue,
+  devWildcardCertArn,
   prodAccount,
   prodImgproxySecretValue,
   prodWildcardCertArn,
 } from './aws-accounts';
-import { devWildcardCertArn } from './aws-accounts.example';
 
 const app = new cdk.App();
 
@@ -37,6 +38,9 @@ new RootStack(app, 'Dev', {
     isDev: true,
     wildcardCertArn: devWildcardCertArn,
     imgproxySecretValue: devImgproxySecretValue,
+    crossAccount: {
+      prodBackupsBucketName: 'backups.whitewater.guide',
+    },
   },
   env: {
     account: devAccount,
@@ -50,6 +54,9 @@ new RootStack(app, 'Prod', {
     isDev: false,
     wildcardCertArn: prodWildcardCertArn,
     imgproxySecretValue: prodImgproxySecretValue,
+    crossAccount: {
+      devBackupTaskRoleArn,
+    },
   },
   env: {
     account: prodAccount,
