@@ -18,8 +18,15 @@ export class Api extends Service {
     const { cluster, postgresSecret, contentBucket } = props;
     super(scope, {
       cluster,
-      healthCheck: '/ping',
-      image: 'ghcr.io/whitewater-guide/backend:0.0.485',
+      healthCheck: {
+        path: '/ping',
+        healthyThresholdCount: 2,
+        // During long running migrations this can be increased
+        // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html
+        interval: cdk.Duration.seconds(300),
+        unhealthyThresholdCount: 5,
+      },
+      image: 'ghcr.io/whitewater-guide/backend:0.0.486',
       name: 'api',
       port: 3333,
       environment: {

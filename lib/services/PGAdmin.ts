@@ -8,7 +8,7 @@ export class PGAdmin extends Service {
   constructor(scope: cdk.Construct, cluster: ecs.Cluster) {
     super(scope, {
       cluster,
-      healthCheck: '/misc/ping',
+      healthCheck: { path: '/misc/ping' },
       // This is the latest version that works: https://stackoverflow.com/questions/69604497/healthcheck-request-timed-out-when-running-pgadminin-ecs
       image: 'dpage/pgadmin4:4.30',
       name: 'pgadmin',

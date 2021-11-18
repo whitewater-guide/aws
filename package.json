@@ -9,9 +9,9 @@
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
+    "clean": "rm -rf ./cdk.out ./dist",
     "start": "ts-node scripts/start_stop.ts start",
     "stop": "ts-node scripts/start_stop.ts stop",
-    "legacy_restore": "ts-node scripts/legacy_restore.ts",
     "manual": "ts-node scripts/manual_backup_restore.ts",
     "prepare": "husky install"
   },
@@ -43,7 +43,7 @@
     "chalk": "^4.1.2",
     "commander": "^8.3.0",
     "lodash": "^4.17.21",
-    "p-wait-for": "^4.1.0",
+    "p-wait-for": "3.2.0",
     "pg": "^8.7.1",
     "source-map-support": "^0.5.20",
     "uuid": "^8.3.2"

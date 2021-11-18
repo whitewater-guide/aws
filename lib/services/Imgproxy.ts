@@ -30,7 +30,7 @@ export class Imgproxy extends Service {
 
     super(scope, {
       cluster,
-      healthCheck: '/health',
+      healthCheck: { path: '/health' },
       image: 'darthsim/imgproxy:v2.17',
       name: 'imgproxy',
       port: 8080,

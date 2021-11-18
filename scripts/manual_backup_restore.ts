@@ -1,20 +1,10 @@
 import AWS from 'aws-sdk';
 import chalk from 'chalk';
-import { InvalidArgumentError, program } from 'commander';
-
-type PgDumpRestoreVersion = 2 | 3;
-
-function isValidPgDumpRestoreVersion(
-  value: number,
-): value is PgDumpRestoreVersion {
-  return [2, 3].includes(value);
-}
+import { program } from 'commander';
+import waitFor from 'p-wait-for';
 
 interface CommonOptions {
   profile: string;
-  version: PgDumpRestoreVersion;
-  host: string;
-  password: string;
 }
 
 interface BackupOptions extends CommonOptions {
@@ -23,20 +13,12 @@ interface BackupOptions extends CommonOptions {
 
 interface RestoreOptions extends CommonOptions {
   skipGorge?: boolean;
+  s3Bucket?: string;
 }
 
-function parsePgDumpRestoreVersion(value: string): PgDumpRestoreVersion {
-  const parsedValue = parseInt(value, 10);
-  if (isNaN(parsedValue)) {
-    throw new InvalidArgumentError('not a number');
-  }
-  if (isValidPgDumpRestoreVersion(parsedValue)) {
-    return parsedValue;
-  } else {
-    throw new InvalidArgumentError(
-      'valid pg_dump_restore versions are 2 and 3',
-    );
-  }
+interface MigrateOptions {
+  from: string;
+  to: string;
 }
 
 function loadAWSProfile(profile: string) {
@@ -46,9 +28,45 @@ function loadAWSProfile(profile: string) {
   AWS.config.region = 'us-east-1';
 }
 
+async function waitForTaskCompletion(
+  clusterArn: string,
+  taskArn: string,
+): Promise<boolean> {
+  const ecs = new AWS.ECS();
+  const { tasks } = await ecs
+    .describeTasks({
+      cluster: clusterArn,
+      tasks: [taskArn],
+    })
+    .promise();
+
+  // If an error is thrown, the framework will submit a "FAILED" response to AWS CloudFormation
+  if (tasks?.length !== 1) {
+    throw new Error('should have exactly one task');
+  }
+  const task = tasks[0];
+  if (task.containers?.length !== 1) {
+    throw new Error('task should have exactly one container');
+  }
+  const container = task.containers[0];
+  if (
+    task.lastStatus === 'STOPPED' &&
+    task.stopCode !== 'EssentialContainerExited'
+  ) {
+    throw new Error(
+      `Task stopped with code '${task.stopCode}': ${task.stoppedReason}`,
+    );
+  }
+  if (container.lastStatus === 'STOPPED' && container.exitCode !== 0) {
+    throw new Error(`container exited with code ${container.exitCode}`);
+  }
+
+  return task.lastStatus === 'STOPPED';
+}
+
 async function runTask(
   task: 'backup' | 'restore',
-  { version, host, password, profile }: CommonOptions,
+  { profile }: CommonOptions,
   env: AWS.ECS.EnvironmentVariables = [],
 ) {
   loadAWSProfile(profile);
@@ -59,7 +77,7 @@ async function runTask(
   const { taskDefinitionArns } = await ecs.listTaskDefinitions().promise();
 
   const def = taskDefinitionArns?.find((d) =>
-    d.toLowerCase().includes(`manualbackupv${version}`),
+    d.toLowerCase().includes('backup'),
   );
   if (!def) {
     throw new Error('DB backup/restore task definition not found');
@@ -74,7 +92,7 @@ async function runTask(
 
   // Find db instance to restore on
   const { DBInstances } = await rds.describeDBInstances().promise();
-  const db = DBInstances?.find((dbi) => dbi.Endpoint?.Address === host);
+  const db = DBInstances?.[0];
   if (!db) {
     throw new Error('Could not find db instance to restore on');
   }
@@ -90,7 +108,7 @@ async function runTask(
     chalk`Running {yellow ${task}} task {green ${def}} on {green ${clusterArn}}`,
   );
 
-  const { failures } = await ecs
+  const { failures, tasks } = await ecs
     .runTask({
       taskDefinition: def,
       cluster: clusterArn,
@@ -100,11 +118,7 @@ async function runTask(
         containerOverrides: [
           {
             name: 'BackupContainer',
-            environment: [
-              { name: 'PGHOST', value: host },
-              { name: 'POSTGRES_PASSWORD', value: password },
-              ...env,
-            ],
+            environment: env,
             command: [`/app/${task}.sh`],
           },
         ],
@@ -120,7 +134,18 @@ async function runTask(
   if (failures?.length) {
     console.error(chalk.red(`${task} task failed`));
     console.error(JSON.stringify(failures, null, 2));
+    return;
   }
+
+  const taskArn = tasks?.[0].taskArn;
+  if (!taskArn) {
+    console.error(chalk.red(`${task} did not create task`));
+    return;
+  }
+
+  await waitFor(() => waitForTaskCompletion(clusterArn, taskArn), {
+    interval: 5000,
+  });
 }
 
 async function pgBackup({ skipPartitions, ...options }: BackupOptions) {
@@ -131,25 +156,21 @@ async function pgBackup({ skipPartitions, ...options }: BackupOptions) {
   );
 }
 
-async function pgRestore({ skipGorge, ...options }: RestoreOptions) {
-  await runTask(
-    'restore',
-    options,
-    skipGorge ? [{ name: 'SKIP_GORGE', value: 'true' }] : [],
-  );
+async function pgRestore({ skipGorge, s3Bucket, ...options }: RestoreOptions) {
+  const env: AWS.ECS.EnvironmentVariables = [];
+  if (skipGorge) {
+    env.push({ name: 'SKIP_GORGE', value: 'true' });
+  }
+  if (s3Bucket) {
+    env.push({ name: 'S3_BUCKET', value: s3Bucket });
+  }
+  await runTask('restore', options, env);
 }
 
 program
   .command('backup')
   .description('backs up whitewater.guide databases from AWS RDS into AWS S3')
   .requiredOption('--profile <profile>', 'aws profile to use')
-  .requiredOption(
-    '-v, --version <version>',
-    'pg_dump_restore version to use',
-    parsePgDumpRestoreVersion,
-  )
-  .requiredOption('-h, --host <host>', 'postgres host')
-  .requiredOption('-p, --password <password>', 'postgres password')
   .option('--skip-partitions', 'do not archive old measurements partitions')
   .action((options: BackupOptions) => {
     pgBackup(options).catch((e) => {
@@ -162,13 +183,6 @@ program
   .command('restore')
   .description('restores whitewater.guide databases from AWS S3 into AWS RDS')
   .requiredOption('--profile <profile>', 'aws profile to use')
-  .requiredOption(
-    '-v, --version <version>',
-    'pg_dump_restore version to use',
-    parsePgDumpRestoreVersion,
-  )
-  .requiredOption('-h, --host <host>', 'postgres host')
-  .requiredOption('-p, --password <password>', 'postgres password')
   .option(
     '--skip-gorge',
     'do not restore gorge measurements (takes a lot of time)',
@@ -178,6 +192,27 @@ program
       console.error(chalk.red(e));
       process.exit(1);
     });
+  });
+
+program
+  .command('migrate')
+  .description(
+    'restores whitewater.guide databases from one account into another',
+  )
+  .requiredOption('--from <profile>', 'aws profile to of source database')
+  .requiredOption('--to <profile>', 'aws profile to of destination database')
+  .action(async (options: MigrateOptions) => {
+    try {
+      await pgBackup({ skipPartitions: true, profile: options.from });
+      // Restore from production bucket
+      await pgRestore({
+        profile: options.to,
+        s3Bucket: 'backups.whitewater.guide',
+      });
+    } catch (e) {
+      console.error(chalk.red(e));
+      process.exit(1);
+    }
   });
 
 program.parse(process.argv);

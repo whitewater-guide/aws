@@ -16,8 +16,8 @@ export class Gorge extends Service {
     const { cluster, postgresSecret } = props;
     super(scope, {
       cluster,
-      healthCheck: '/version',
-      image: 'ghcr.io/whitewater-guide/gorge:2.0.8',
+      healthCheck: { path: '/version' },
+      image: 'ghcr.io/whitewater-guide/gorge:2.3.4',
       name: 'gorge',
       port: Gorge.PORT,
       command: [

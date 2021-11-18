@@ -4,7 +4,8 @@ import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as logs from '@aws-cdk/aws-logs';
 import * as cdk from '@aws-cdk/core';
-import { upperFirst } from 'lodash';
+import upperFirst from 'lodash/upperFirst';
+import { Required } from 'utility-types';
 
 import Tags from '../Tags';
 
@@ -20,7 +21,7 @@ export interface ServiceProps {
   command?: string[];
 
   port: number;
-  healthCheck: string;
+  healthCheck: Required<elbv2.HealthCheck, 'path'>;
 
   cpu?: number;
   memory?: number;
@@ -30,7 +31,7 @@ export interface ServiceProps {
 export class Service {
   private readonly _loadBalancerTargets: ecs.IEcsLoadBalancerTarget[];
   private readonly _taskDefinition: ecs.FargateTaskDefinition;
-  private readonly _healthCheck?: string;
+  private readonly _healthCheck: Required<elbv2.HealthCheck, 'path'>;
   private readonly _port: number;
   private readonly _service: ecs.FargateService;
   protected readonly _scope: cdk.Construct;
@@ -110,10 +111,10 @@ export class Service {
       protocol: elbv2.ApplicationProtocol.HTTP,
       targets: this._loadBalancerTargets,
       healthCheck: {
-        path: this._healthCheck,
         protocol: elbv2.Protocol.HTTP,
         port: this._port.toString(10),
         healthyHttpCodes: '200-399',
+        ...this._healthCheck,
       },
     };
   }
