@@ -20,13 +20,8 @@ export class Api extends Service {
       cluster,
       healthCheck: {
         path: '/ping',
-        healthyThresholdCount: 2,
-        // During long running migrations this can be increased
-        // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/target-group-health-checks.html
-        interval: cdk.Duration.seconds(300),
-        unhealthyThresholdCount: 5,
       },
-      image: 'ghcr.io/whitewater-guide/backend:0.0.486',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.487',
       name: 'api',
       port: 3333,
       environment: {
@@ -58,6 +53,8 @@ export class Api extends Service {
         DESCENTS_TOKEN_SECRET: SSM.secret(scope, SSM.DESCENTS_TOKEN_SECRET),
         FB_SECRET: SSM.secret(scope, SSM.FB_SECRET),
         GOOGLE_SERVICE_ACCOUNT: SSM.secret(scope, SSM.GOOGLE_SERVICE_ACCOUNT),
+        GORGE_HEALTH_KEY: SSM.secret(scope, SSM.GORGE_HEALTH_KEY),
+        GORGE_HEALTH_EMAILS: SSM.secret(scope, SSM.GORGE_HEALTH_EMAILS),
       },
       enableLogging: true,
       desiredCount: Config.get(scope, 'isDev') ? 1 : 2,
