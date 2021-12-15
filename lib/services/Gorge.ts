@@ -33,6 +33,8 @@ export class Gorge extends Service {
         '--log-level',
         // Warning! When set to debug, this produces hellish amount of logs, which will cost you some $$$ in AWS CloudWatch
         'info',
+        '--hooks-health-cron',
+        '0 10 * * *',
         '--hooks-health-url',
         'http://api.local/gorge/health',
         '--hooks-health-headers',
