@@ -34,6 +34,7 @@ export class ServicesStack extends cdk.Stack {
     const pgadmin = new PGAdmin(this, cluster);
 
     gorge.connections.allowFrom(api, ec2.Port.tcp(Gorge.PORT));
+    api.connections.allowFrom(gorge, ec2.Port.tcp(Api.PORT));
 
     const balancer = new LoadBalancer(this, props);
     balancer.addServiceTarget(100, 'api', api.listenerTargetProps);
