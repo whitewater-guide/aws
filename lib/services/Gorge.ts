@@ -3,6 +3,7 @@ import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
 import * as cdk from '@aws-cdk/core';
 
 import { SSM } from '../SSM';
+import { Api } from './Api';
 import { Service } from './Service';
 
 interface Props {
@@ -18,7 +19,7 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.0.7',
+      image: 'ghcr.io/whitewater-guide/gorge:3.0.8',
       name: 'gorge',
       port: Gorge.PORT,
       command: [
@@ -33,10 +34,8 @@ export class Gorge extends Service {
         '--log-level',
         // Warning! When set to debug, this produces hellish amount of logs, which will cost you some $$$ in AWS CloudWatch
         'info',
-        '--hooks-health-cron',
-        '0 10 * * *',
         '--hooks-health-url',
-        'http://api.local/gorge/health',
+        `http://api.local:${Api.PORT}/gorge/health`,
         '--hooks-health-headers',
         'x-api-key: $GORGE_HEALTH_KEY', // this env is evaluated by gorge during runtime, not by docker!
       ],

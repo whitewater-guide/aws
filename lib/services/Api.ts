@@ -14,6 +14,8 @@ interface Props {
 }
 
 export class Api extends Service {
+  public static PORT = 3333;
+
   constructor(scope: cdk.Construct, props: Props) {
     const { cluster, postgresSecret, contentBucket } = props;
     super(scope, {
@@ -21,9 +23,9 @@ export class Api extends Service {
       healthCheck: {
         path: '/ping',
       },
-      image: 'ghcr.io/whitewater-guide/backend:0.0.488',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.489',
       name: 'api',
-      port: 3333,
+      port: Api.PORT,
       environment: {
         NODE_ENV: 'production',
         ROOT_DOMAIN: Config.get(scope, 'topLevelDomain'),
@@ -59,7 +61,6 @@ export class Api extends Service {
       enableLogging: true,
       desiredCount: Config.get(scope, 'isDev') ? 1 : 2,
     });
-    // service.connections.allowFromAnyIpv4(ec2.Port.tcp(3333));
     contentBucket.grantReadWrite(this.taskRole);
   }
 }
