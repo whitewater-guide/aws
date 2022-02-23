@@ -1,16 +1,17 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as logs from '@aws-cdk/aws-logs';
-import * as rds from '@aws-cdk/aws-rds';
-import * as cdk from '@aws-cdk/core';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as rds from 'aws-cdk-lib/aws-rds';
+import { Construct } from 'constructs';
 
 import { Config } from '../../../config';
 import { DatabaseProps } from '../../types';
 
 export class Postgres13Temp {
   private readonly _instance: rds.DatabaseInstance;
-  private readonly _scope: cdk.Construct;
+  private readonly _scope: Construct;
 
-  constructor(scope: cdk.Construct, { cluster }: DatabaseProps) {
+  constructor(scope: Construct, { cluster }: DatabaseProps) {
     const isDev = Config.get(scope, 'isDev');
     this._scope = scope;
 
@@ -39,10 +40,10 @@ export class Postgres13Temp {
         excludeCharacters: ' =.,%+~^`#$&*()|[]{}:;<>?!\'/@"\\',
       }),
       cloudwatchLogsRetention: logs.RetentionDays.ONE_DAY,
-      backupRetention: cdk.Duration.days(0),
+      backupRetention: Duration.days(0),
       deleteAutomatedBackups: true,
       deletionProtection: false,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.DESTROY,
     });
     // we're in private subnet
     this._instance.connections.allowDefaultPortFromAnyIpv4();

@@ -1,4 +1,5 @@
-import * as cdk from '@aws-cdk/core';
+import { CustomResource } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 import Migrate12To13Provider from './Migrate12To13Provider';
 import { Migrate12To13TaskDefinition } from './Migrate12To13TaskDefinition';
@@ -9,8 +10,8 @@ import { Migrate12To13Props, Migrate12To13ResourceProps } from './types';
  * Migrate12To13 is custom resource that does following:
  * - Launches Fargate ECS task that migrates data from postgres 12 to postgres 13 and sets up partitioning in pg13
  */
-export class Migrate12To13 extends cdk.Construct {
-  constructor(scope: cdk.Construct, id: string, props: Migrate12To13Props) {
+export class Migrate12To13 extends Construct {
+  constructor(scope: Construct, id: string, props: Migrate12To13Props) {
     super(scope, id);
     const { cluster, secrets } = props;
 
@@ -29,7 +30,7 @@ export class Migrate12To13 extends cdk.Construct {
       subnets: cluster.vpc.privateSubnets.map((s) => s.subnetId),
     };
 
-    new cdk.CustomResource(this, 'CRes', {
+    new CustomResource(this, 'CRes', {
       serviceToken: Migrate12To13Provider.getOrCreate(this, {
         ...properties,
         taskDef,

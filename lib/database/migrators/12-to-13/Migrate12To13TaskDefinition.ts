@@ -1,8 +1,8 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as iam from '@aws-cdk/aws-iam';
-import * as logs from '@aws-cdk/aws-logs';
-import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import * as cdk from '@aws-cdk/core';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { Construct } from 'constructs';
 
 import { Config } from '../../../config';
 
@@ -18,7 +18,7 @@ interface Props {
  * This task is launched by lambda in custom resource to migrate data from pg12 to pg13
  */
 export class Migrate12To13TaskDefinition extends ecs.FargateTaskDefinition {
-  constructor(scope: cdk.Construct, { secrets }: Props) {
+  constructor(scope: Construct, { secrets }: Props) {
     super(scope, 'TaskDef', {
       cpu: 1024,
       memoryLimitMiB: 2048,

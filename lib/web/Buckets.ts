@@ -1,7 +1,8 @@
-import * as iam from '@aws-cdk/aws-iam';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as s3deploy from '@aws-cdk/aws-s3-deployment';
-import * as cdk from '@aws-cdk/core';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import { Construct } from 'constructs';
 import * as path from 'path';
 
 import { Config } from '../config';
@@ -14,7 +15,7 @@ export class Buckets {
   public readonly landingBucket: s3.Bucket;
   public readonly backupsBucket: s3.Bucket;
 
-  constructor(scope: cdk.Construct) {
+  constructor(scope: Construct) {
     const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const isDev = Config.get(scope, 'isDev');
     const crossAccount = Config.get(scope, 'crossAccount');
@@ -25,12 +26,10 @@ export class Buckets {
         {
           enabled: true,
           prefix: 'temp/',
-          expiration: cdk.Duration.days(1),
+          expiration: Duration.days(1),
         },
       ],
-      removalPolicy: isDev
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
       cors: [
         {
@@ -60,9 +59,7 @@ export class Buckets {
     this.landingBucket = new s3.Bucket(scope, 'LandingBucket', {
       bucketName: topLevelDomain,
       publicReadAccess: true,
-      removalPolicy: isDev
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
     });
     new BucketDistribution(scope, this.landingBucket);
@@ -70,9 +67,7 @@ export class Buckets {
     this.adminBucket = new s3.Bucket(scope, 'AdminBucket', {
       bucketName: `admin.${topLevelDomain}`,
       publicReadAccess: true,
-      removalPolicy: isDev
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
     });
     new BucketDistribution(scope, this.adminBucket, 'admin');
@@ -82,9 +77,7 @@ export class Buckets {
     this.appBucket = new s3.Bucket(scope, 'AppBucket', {
       bucketName: `app.${topLevelDomain}`,
       publicReadAccess: true,
-      removalPolicy: isDev
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
     });
     const appDistribution = new BucketDistribution(
@@ -100,14 +93,12 @@ export class Buckets {
 
     this.backupsBucket = new s3.Bucket(scope, 'BackupsBucket', {
       bucketName: `backups.${topLevelDomain}`,
-      removalPolicy: isDev
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.RETAIN,
+      removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
       lifecycleRules: [
         {
           enabled: true,
-          expiration: cdk.Duration.days(180),
+          expiration: Duration.days(180),
         },
       ],
     });

@@ -1,9 +1,9 @@
-import * as cert from '@aws-cdk/aws-certificatemanager';
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as targets from '@aws-cdk/aws-route53-targets';
-import * as cdk from '@aws-cdk/core';
+import * as cert from 'aws-cdk-lib/aws-certificatemanager';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
+import { Construct } from 'constructs';
 import upperFirst from 'lodash/upperFirst';
 
 import { Config } from '../config';
@@ -15,11 +15,11 @@ export interface LoadBalancerProps {
 export class LoadBalancer {
   private _topLevelDomain: string;
   private _listener: elbv2.ApplicationListener;
-  private _scope: cdk.Construct;
+  private _scope: Construct;
   private _route53Target: route53.RecordTarget;
   private _hostedZone?: route53.IHostedZone;
 
-  constructor(scope: cdk.Construct, props: LoadBalancerProps) {
+  constructor(scope: Construct, props: LoadBalancerProps) {
     const { cluster } = props;
     this._topLevelDomain = Config.get(scope, 'topLevelDomain');
     this._scope = scope;

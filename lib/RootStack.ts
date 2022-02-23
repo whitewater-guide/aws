@@ -1,19 +1,20 @@
-import * as cdk from '@aws-cdk/core';
+import { Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
+import AppTags from './AppTags';
 import { Config } from './config';
 import { DatabaseStack } from './database';
 import { NetworkingStack } from './networking';
 import { ServicesStack } from './services';
-import Tags from './Tags';
 import { AppConfig } from './types';
 import { WebStack } from './web';
 
-interface Props extends cdk.StackProps {
+interface Props extends StackProps {
   config: AppConfig;
 }
 
-export class RootStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, { config, ...props }: Props) {
+export class RootStack extends Stack {
+  constructor(scope: Construct, id: string, { config, ...props }: Props) {
     super(scope, id, props);
     Config.set(scope, config);
 
@@ -36,6 +37,6 @@ export class RootStack extends cdk.Stack {
     });
     this.addDependency(services);
 
-    cdk.Tags.of(this).add(...Tags.Stoppable);
+    Tags.of(this).add(...AppTags.Stoppable);
   }
 }

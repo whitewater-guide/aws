@@ -1,20 +1,17 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 
-import * as cdk from '@aws-cdk/core';
+import { App } from 'aws-cdk-lib';
 
 import { RootStack } from '../lib/RootStack';
 import {
-  devAccount,
   devBackupTaskRoleArn,
-  devImgproxySecretValue,
-  devWildcardCertArn,
   prodAccount,
   prodImgproxySecretValue,
   prodWildcardCertArn,
 } from './aws-accounts';
 
-const app = new cdk.App();
+const app = new App();
 
 // new CertificatesStack(app, 'CertificatesDev', {
 //   topLevelDomain: 'whitewater-dev.com',
@@ -32,21 +29,21 @@ const app = new cdk.App();
 //   },
 // });
 
-new RootStack(app, 'Dev', {
-  config: {
-    topLevelDomain: 'whitewater-dev.com',
-    isDev: true,
-    wildcardCertArn: devWildcardCertArn,
-    imgproxySecretValue: devImgproxySecretValue,
-    crossAccount: {
-      prodBackupsBucketName: 'backups.whitewater.guide',
-    },
-  },
-  env: {
-    account: devAccount,
-    region: 'us-east-1',
-  },
-});
+// new RootStack(app, 'Dev', {
+//   config: {
+//     topLevelDomain: 'whitewater-dev.com',
+//     isDev: true,
+//     wildcardCertArn: devWildcardCertArn,
+//     imgproxySecretValue: devImgproxySecretValue,
+//     crossAccount: {
+//       prodBackupsBucketName: 'backups.whitewater.guide',
+//     },
+//   },
+//   env: {
+//     account: devAccount,
+//     region: 'us-east-1',
+//   },
+// });
 
 new RootStack(app, 'Prod', {
   config: {

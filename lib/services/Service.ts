@@ -1,13 +1,14 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
-import * as iam from '@aws-cdk/aws-iam';
-import * as logs from '@aws-cdk/aws-logs';
-import * as cdk from '@aws-cdk/core';
+import { Tags } from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Construct } from 'constructs';
 import upperFirst from 'lodash/upperFirst';
 import { Required } from 'utility-types';
 
-import Tags from '../Tags';
+import AppTags from '../AppTags';
 
 export interface ServiceProps {
   isDev?: boolean;
@@ -34,9 +35,9 @@ export class Service {
   private readonly _healthCheck: Required<elbv2.HealthCheck, 'path'>;
   private readonly _port: number;
   private readonly _service: ecs.FargateService;
-  protected readonly _scope: cdk.Construct;
+  protected readonly _scope: Construct;
 
-  constructor(scope: cdk.Construct, props: ServiceProps) {
+  constructor(scope: Construct, props: ServiceProps) {
     const {
       isDev,
       name,
@@ -92,7 +93,7 @@ export class Service {
       },
       desiredCount,
     });
-    cdk.Tags.of(this._service).add(...Tags.DesiredCount(desiredCount));
+    Tags.of(this._service).add(...AppTags.DesiredCount(desiredCount));
 
     this._loadBalancerTargets = [
       this._service.loadBalancerTarget({

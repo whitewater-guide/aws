@@ -1,16 +1,16 @@
-import * as cert from '@aws-cdk/aws-certificatemanager';
-import * as cloudfront from '@aws-cdk/aws-cloudfront';
-import * as origins from '@aws-cdk/aws-cloudfront-origins';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as targets from '@aws-cdk/aws-route53-targets';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as cdk from '@aws-cdk/core';
+import * as cert from 'aws-cdk-lib/aws-certificatemanager';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
 import upperFirst from 'lodash/upperFirst';
 
 import { Config } from '../config';
 
 export class BucketDistribution extends cloudfront.Distribution {
-  constructor(scope: cdk.Construct, bucket: s3.Bucket, subDomain = '') {
+  constructor(scope: Construct, bucket: s3.Bucket, subDomain = '') {
     const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const prefix = upperFirst(subDomain || 'root');
     const fullDomain = [subDomain, topLevelDomain].filter((d) => !!d).join('.');

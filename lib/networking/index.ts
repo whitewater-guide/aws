@@ -1,6 +1,7 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as cdk from '@aws-cdk/core';
+import { Stack, StackProps, Tags } from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import { Construct } from 'constructs';
 
 import Cluster from './Cluster';
 
@@ -8,13 +9,13 @@ export interface NetworkingStackProps {
   maxAzs?: number;
 }
 
-export class NetworkingStack extends cdk.Stack {
+export class NetworkingStack extends Stack {
   public readonly cluster: ecs.Cluster;
 
   constructor(
-    scope: cdk.Construct,
+    scope: Construct,
     id: string,
-    props: NetworkingStackProps & cdk.StackProps,
+    props: NetworkingStackProps & StackProps,
   ) {
     super(scope, id, props);
     // Rds requires at least 2 azs
@@ -30,7 +31,7 @@ export class NetworkingStack extends cdk.Stack {
         ),
       }),
     });
-    cdk.Tags.of(vpc).add('wwguide:vpc', 'true');
+    Tags.of(vpc).add('wwguide:vpc', 'true');
 
     this.cluster = new Cluster(this, 'Cluster', vpc);
   }

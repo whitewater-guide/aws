@@ -1,8 +1,9 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as iam from '@aws-cdk/aws-iam';
-import * as logs from '@aws-cdk/aws-logs';
-import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import * as cdk from '@aws-cdk/core';
+import { CfnOutput } from 'aws-cdk-lib';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { Construct } from 'constructs';
 
 import { Config } from '../config';
 
@@ -11,7 +12,7 @@ export interface BackupTaskDefinitionProps {
 }
 
 export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
-  constructor(scope: cdk.Construct, props: BackupTaskDefinitionProps) {
+  constructor(scope: Construct, props: BackupTaskDefinitionProps) {
     const { postgresSecret } = props;
     const crossAccount = Config.get(scope, 'crossAccount');
 
@@ -70,7 +71,7 @@ export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
           resources: [`arn:aws:s3:::${crossAccount.prodBackupsBucketName}/*`],
         }),
       );
-      new cdk.CfnOutput(this, 'TaskRoleOutput', {
+      new CfnOutput(this, 'TaskRoleOutput', {
         value: this.taskRole.roleArn,
       });
     }

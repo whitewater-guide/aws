@@ -1,7 +1,7 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import * as cdk from '@aws-cdk/core';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { SSM } from '../SSM';
@@ -16,7 +16,7 @@ interface Props {
 export class Api extends Service {
   public static PORT = 3333;
 
-  constructor(scope: cdk.Construct, props: Props) {
+  constructor(scope: Construct, props: Props) {
     const { cluster, postgresSecret, contentBucket } = props;
     super(scope, {
       cluster,
