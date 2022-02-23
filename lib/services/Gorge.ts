@@ -1,6 +1,6 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import * as cdk from '@aws-cdk/core';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { Construct } from 'constructs';
 
 import { SSM } from '../SSM';
 import { Api } from './Api';
@@ -14,7 +14,7 @@ interface Props {
 export class Gorge extends Service {
   public static PORT = 7080;
 
-  constructor(scope: cdk.Construct, props: Props) {
+  constructor(scope: Construct, props: Props) {
     const { cluster, postgresSecret } = props;
     super(scope, {
       cluster,

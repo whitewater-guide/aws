@@ -1,9 +1,10 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as iam from '@aws-cdk/aws-iam';
-import * as lambda from '@aws-cdk/aws-lambda-nodejs';
-import * as logs from '@aws-cdk/aws-logs';
-import * as cdk from '@aws-cdk/core';
-import * as cr from '@aws-cdk/custom-resources';
+import { Duration, Stack } from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import { Construct } from 'constructs';
 import * as path from 'path';
 
 interface PGInitProviderProps {
@@ -11,25 +12,24 @@ interface PGInitProviderProps {
   isDev?: boolean;
 }
 
-export default class PGInitProvider extends cdk.Construct {
+export default class PGInitProvider extends Construct {
   private readonly _provider: cr.Provider;
 
   /**
    * Returns the singleton provider.
    */
-  public static getOrCreate(scope: cdk.Construct, props: PGInitProviderProps) {
-    const stack = cdk.Stack.of(scope);
-    const id = 'com.amazonaws.cdk.custom-resources.pginit-provider';
+  public static getOrCreate(scope: Construct, props: PGInitProviderProps) {
+    const stack = Stack.of(scope);
+    const id = 'com.amazonaws.custom-resources.pginit-provider';
     const x =
       (stack.node.tryFindChild(id) as PGInitProvider) ||
       new PGInitProvider(stack, id, props);
     return x._provider.serviceToken;
   }
 
-  constructor(scope: cdk.Construct, id: string, props: PGInitProviderProps) {
+  constructor(scope: Construct, id: string, props: PGInitProviderProps) {
     super(scope, id);
     const { vpc } = props;
-    const stack = cdk.Stack.of(scope);
 
     this._provider = new cr.Provider(this, 'PGInitProvider', {
       onEventHandler: new lambda.NodejsFunction(this, 'PGInitLambda', {
@@ -46,19 +46,10 @@ export default class PGInitProvider extends cdk.Construct {
               'secretsmanager:GetSecretValue',
               'secretsmanager:DescribeSecret',
             ],
-            resources: [
-              '*',
-              // TODO: use secret name now
-              // stack.formatArn({
-              //   service: 'secretsmanager',
-              //   resource: 'secret',
-              //   arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
-              //   resourceName: scope.toString().replace('/', '') + '*',
-              // }),
-            ],
+            resources: ['*'],
           }),
         ],
-        timeout: cdk.Duration.minutes(15),
+        timeout: Duration.minutes(15),
         logRetention: logs.RetentionDays.ONE_DAY,
       }),
       logRetention: logs.RetentionDays.ONE_DAY,

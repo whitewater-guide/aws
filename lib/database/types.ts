@@ -1,4 +1,4 @@
-import * as ecs from '@aws-cdk/aws-ecs';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
 
 export interface DatabaseProps {
   cluster: ecs.Cluster;

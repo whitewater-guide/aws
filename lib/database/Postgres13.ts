@@ -1,9 +1,10 @@
-import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as logs from '@aws-cdk/aws-logs';
-import * as rds from '@aws-cdk/aws-rds';
-import * as cloudmap from '@aws-cdk/aws-servicediscovery';
-import * as cdk from '@aws-cdk/core';
+import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as rds from 'aws-cdk-lib/aws-rds';
+import * as cloudmap from 'aws-cdk-lib/aws-servicediscovery';
+import { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { POSTGRES_SECRET_NAME } from './constants';
@@ -11,9 +12,9 @@ import { DatabaseProps } from './types';
 
 export class Postgres13 {
   private readonly _instance: rds.DatabaseInstance;
-  private readonly _scope: cdk.Construct;
+  private readonly _scope: Construct;
 
-  constructor(scope: cdk.Construct, { cluster }: DatabaseProps) {
+  constructor(scope: Construct, { cluster }: DatabaseProps) {
     const isDev = Config.get(scope, 'isDev');
     this._scope = scope;
 
@@ -43,12 +44,10 @@ export class Postgres13 {
         excludeCharacters: ' =.,%+~^`#$&*()|[]{}:;<>?!\'/@"\\',
       }),
       cloudwatchLogsRetention: logs.RetentionDays.ONE_DAY,
-      backupRetention: isDev ? cdk.Duration.days(0) : cdk.Duration.days(3),
+      backupRetention: isDev ? Duration.days(0) : Duration.days(3),
       deleteAutomatedBackups: isDev,
       deletionProtection: !isDev,
-      removalPolicy: isDev
-        ? cdk.RemovalPolicy.DESTROY
-        : cdk.RemovalPolicy.SNAPSHOT,
+      removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.SNAPSHOT,
       allocatedStorage: 20,
       maxAllocatedStorage: isDev ? 50 : 100,
     });

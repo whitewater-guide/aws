@@ -1,12 +1,13 @@
-import * as cert from '@aws-cdk/aws-certificatemanager';
-import * as cloudfront from '@aws-cdk/aws-cloudfront';
-import * as origins from '@aws-cdk/aws-cloudfront-origins';
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as elbv2 from '@aws-cdk/aws-elasticloadbalancingv2';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as targets from '@aws-cdk/aws-route53-targets';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as cdk from '@aws-cdk/core';
+import { Stack } from 'aws-cdk-lib';
+import * as cert from 'aws-cdk-lib/aws-certificatemanager';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as targets from 'aws-cdk-lib/aws-route53-targets';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { SSM } from '../SSM';
@@ -23,7 +24,7 @@ export class Imgproxy extends Service {
   private static SECURE_HEADER = 'X-Imgproxy-Cloudfront';
   private readonly _secureValue: string;
 
-  constructor(scope: cdk.Construct, props: Props) {
+  constructor(scope: Construct, props: Props) {
     const { cluster, contentBucket } = props;
 
     const isDev = Config.get(scope, 'isDev');
@@ -36,7 +37,7 @@ export class Imgproxy extends Service {
       port: 8080,
       environment: {
         IMGPROXY_USE_S3: 'true',
-        IMGPROXY_S3_REGION: cdk.Stack.of(scope).region,
+        IMGPROXY_S3_REGION: Stack.of(scope).region,
         IMGPROXY_USE_ETAG: 'true',
         IMGPROXY_GZIP_COMPRESSION: '0',
         IMGPROXY_ALLOWED_SOURCES: 's3://',

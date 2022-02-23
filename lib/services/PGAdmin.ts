@@ -1,11 +1,11 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as cdk from '@aws-cdk/core';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import { Construct } from 'constructs';
 
 import { SSM } from '../SSM';
 import { Service } from './Service';
 
 export class PGAdmin extends Service {
-  constructor(scope: cdk.Construct, cluster: ecs.Cluster) {
+  constructor(scope: Construct, cluster: ecs.Cluster) {
     super(scope, {
       cluster,
       healthCheck: { path: '/misc/ping' },

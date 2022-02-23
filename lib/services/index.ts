@@ -1,8 +1,9 @@
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as secretsmanager from '@aws-cdk/aws-secretsmanager';
-import * as cdk from '@aws-cdk/core';
+import { Stack, StackProps } from 'aws-cdk-lib';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import { Construct } from 'constructs';
 
 import { POSTGRES_SECRET_NAME } from '../database/constants';
 import { Api } from './Api';
@@ -16,10 +17,10 @@ export interface ServicesStackProps {
   contentBucket: s3.Bucket;
 }
 
-type Props = ServicesStackProps & cdk.StackProps;
+type Props = ServicesStackProps & StackProps;
 
-export class ServicesStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props: Props) {
+export class ServicesStack extends Stack {
+  constructor(scope: Construct, id: string, props: Props) {
     super(scope, id, props);
     const { cluster } = props;
     const postgresSecret = secretsmanager.Secret.fromSecretNameV2(

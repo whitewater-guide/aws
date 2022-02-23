@@ -1,6 +1,6 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as logs from '@aws-cdk/aws-logs';
-import * as cdk from '@aws-cdk/core';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import { Construct } from 'constructs';
 
 export interface LegacyRestoreTaskProps {
   password: ecs.Secret;
@@ -11,7 +11,7 @@ export interface LegacyRestoreTaskProps {
  * This task definition was used to migrate old (pre-AWS) backup into AWS RDS
  */
 export class LegacyRestoreTask extends ecs.FargateTaskDefinition {
-  constructor(scope: cdk.Construct, props: LegacyRestoreTaskProps) {
+  constructor(scope: Construct, props: LegacyRestoreTaskProps) {
     const { password, host } = props;
 
     super(scope, 'LegacyRestoreTaskDef', { cpu: 1024, memoryLimitMiB: 2048 });

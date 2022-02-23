@@ -1,9 +1,10 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as iam from '@aws-cdk/aws-iam';
-import * as lambda from '@aws-cdk/aws-lambda-nodejs';
-import * as logs from '@aws-cdk/aws-logs';
-import * as cdk from '@aws-cdk/core';
-import * as cr from '@aws-cdk/custom-resources';
+import { Duration, Stack } from 'aws-cdk-lib';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cr from 'aws-cdk-lib/custom-resources';
+import { Construct } from 'constructs';
 import * as path from 'path';
 
 import { Migrate12To13ResourceProps } from './types';
@@ -12,17 +13,17 @@ interface Migrate12To13ProviderProps extends Migrate12To13ResourceProps {
   taskDef: ecs.TaskDefinition;
 }
 
-export default class Migrate12To13Provider extends cdk.Construct {
+export default class Migrate12To13Provider extends Construct {
   private readonly _provider: cr.Provider;
 
   /**
    * Returns the singleton provider.
    */
   public static getOrCreate(
-    scope: cdk.Construct,
+    scope: Construct,
     props: Migrate12To13ProviderProps,
   ) {
-    const stack = cdk.Stack.of(scope);
+    const stack = Stack.of(scope);
     const id = 'M12t13Sngltn';
     const x =
       (stack.node.tryFindChild(id) as Migrate12To13Provider) ||
@@ -30,11 +31,7 @@ export default class Migrate12To13Provider extends cdk.Construct {
     return x._provider.serviceToken;
   }
 
-  constructor(
-    scope: cdk.Construct,
-    id: string,
-    props: Migrate12To13ProviderProps,
-  ) {
+  constructor(scope: Construct, id: string, props: Migrate12To13ProviderProps) {
     super(scope, id);
     const { clusterArn, taskDefArn, taskDef } = props;
 
@@ -43,7 +40,7 @@ export default class Migrate12To13Provider extends cdk.Construct {
       bundling: {
         externalModules: ['aws-sdk'],
       },
-      timeout: cdk.Duration.seconds(30),
+      timeout: Duration.seconds(30),
       logRetention: logs.RetentionDays.ONE_DAY,
     };
 
@@ -84,8 +81,8 @@ export default class Migrate12To13Provider extends cdk.Construct {
     this._provider = new cr.Provider(this, 'Provider', {
       onEventHandler,
       isCompleteHandler,
-      queryInterval: cdk.Duration.seconds(30),
-      totalTimeout: cdk.Duration.hours(2),
+      queryInterval: Duration.seconds(30),
+      totalTimeout: Duration.hours(2),
       logRetention: logs.RetentionDays.ONE_DAY,
     });
   }

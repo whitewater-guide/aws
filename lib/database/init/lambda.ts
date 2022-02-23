@@ -38,8 +38,15 @@ export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
   CREATE EXTENSION IF NOT EXISTS "postgis_topology";
   CREATE EXTENSION IF NOT EXISTS "pg_partman";
   `);
-  await client.query('CREATE DATABASE wwguide');
-  await client.query('CREATE DATABASE gorge');
+  const result = await client.query<{ datname: string }>(
+    'SELECT datname FROM pg_database',
+  );
+  if (!result.rows.find((r) => r.datname === 'wwguide')) {
+    await client.query('CREATE DATABASE wwguide');
+  }
+  if (!result.rows.find((r) => r.datname === 'gorge')) {
+    await client.query('CREATE DATABASE gorge');
+  }
   await client.end();
 
   console.info('initialized pg extensions and databases');

@@ -1,6 +1,6 @@
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as ssm from '@aws-cdk/aws-ssm';
-import * as cdk from '@aws-cdk/core';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';
+import { Construct } from 'constructs';
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
 
@@ -30,12 +30,12 @@ export class SSM {
   public static PGADMIN_DEFAULT_EMAIL = 'PGADMIN_DEFAULT_EMAIL';
   public static PGADMIN_DEFAULT_PASSWORD = 'PGADMIN_DEFAULT_PASSWORD';
 
-  public static string(scope: cdk.Construct, id: string) {
+  public static string(scope: Construct, id: string) {
     return ssm.StringParameter.valueForStringParameter(scope, id);
   }
 
   // Get the latest version of a secure SSM parameter
-  public static secret(scope: cdk.Construct, id: string): ecs.Secret {
+  public static secret(scope: Construct, id: string): ecs.Secret {
     const name = upperFirst(camelCase(id));
     const existing: any = scope.node.tryFindChild(name);
     return ecs.Secret.fromSsmParameter(
