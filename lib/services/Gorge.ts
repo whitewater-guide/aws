@@ -6,6 +6,7 @@ import { SSM } from '../SSM';
 import { Api } from './Api';
 import { Service } from './Service';
 
+
 interface Props {
   postgresSecret: secretsmanager.ISecret;
   cluster: ecs.Cluster;
@@ -19,7 +20,7 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.1.0',
+      image: 'ghcr.io/whitewater-guide/gorge:3.1.1',
       name: 'gorge',
       port: Gorge.PORT,
       command: [
