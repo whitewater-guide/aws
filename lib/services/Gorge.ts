@@ -6,7 +6,6 @@ import { SSM } from '../SSM';
 import { Api } from './Api';
 import { Service } from './Service';
 
-
 interface Props {
   postgresSecret: secretsmanager.ISecret;
   cluster: ecs.Cluster;
@@ -47,7 +46,7 @@ export class Gorge extends Service {
         ),
         GORGE_HEALTH_KEY: SSM.secret(scope, SSM.GORGE_HEALTH_KEY),
       },
-      enableLogging: true,
+      enableLogging: false,
     });
   }
 }
