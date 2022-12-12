@@ -43,13 +43,12 @@ export class Imgproxy extends Service {
         IMGPROXY_ALLOWED_SOURCES: 's3://',
         IMGPROXY_LOG_FORMAT: 'json',
         IMGPROXY_TTL: '31536000', // 1 year
-        IMGPROXY_LOG_LEVEL: isDev ? 'debug' : 'info',
+        // IMGPROXY_LOG_LEVEL: isDev ? 'debug' : 'info',
       },
       secrets: {
         IMGPROXY_KEY: SSM.secret(scope, SSM.IMGPROXY_KEY),
         IMGPROXY_SALT: SSM.secret(scope, SSM.IMGPROXY_SALT),
       },
-      enableLogging: isDev,
     });
 
     this._secureValue = Config.get(scope, 'imgproxySecretValue');

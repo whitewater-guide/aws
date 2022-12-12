@@ -30,6 +30,12 @@ export class SSM {
   public static PGADMIN_DEFAULT_EMAIL = 'PGADMIN_DEFAULT_EMAIL';
   public static PGADMIN_DEFAULT_PASSWORD = 'PGADMIN_DEFAULT_PASSWORD';
 
+  public static SYNAPSE_REGISTRATION_SECRET = 'SYNAPSE_REGISTRATION_SECRET';
+  public static SYNAPSE_ADMIN_PASSWORD = 'SYNAPSE_ADMIN_PASSWORD';
+  public static SYNAPSE_FORM_SECRET = 'SYNAPSE_FORM_SECRET';
+  public static SYNAPSE_SIGNING_KEY = 'SYNAPSE_SIGNING_KEY';
+  public static SYNAPSE_MACAROON_KEY = 'SYNAPSE_MACAROON_KEY';
+
   public static string(scope: Construct, id: string) {
     return ssm.StringParameter.valueForStringParameter(scope, id);
   }

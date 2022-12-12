@@ -13,6 +13,7 @@ interface BackupOptions extends CommonOptions {
 
 interface RestoreOptions extends CommonOptions {
   skipGorge?: boolean;
+  skipSynapse?: boolean;
   s3Bucket?: string;
 }
 
@@ -156,10 +157,18 @@ async function pgBackup({ skipPartitions, ...options }: BackupOptions) {
   );
 }
 
-async function pgRestore({ skipGorge, s3Bucket, ...options }: RestoreOptions) {
+async function pgRestore({
+  skipGorge,
+  s3Bucket,
+  skipSynapse,
+  ...options
+}: RestoreOptions) {
   const env: AWS.ECS.EnvironmentVariables = [];
   if (skipGorge) {
     env.push({ name: 'SKIP_GORGE', value: 'true' });
+  }
+  if (skipSynapse) {
+    env.push({ name: 'SKIP_SYNAPSE', value: 'true' });
   }
   if (s3Bucket) {
     env.push({ name: 'S3_BUCKET', value: s3Bucket });
@@ -187,6 +196,7 @@ program
     '--skip-gorge',
     'do not restore gorge measurements (takes a lot of time)',
   )
+  .option('--skip-synapse', 'do not restore synapse db')
   .action((options: RestoreOptions) => {
     pgRestore(options).catch((e) => {
       console.error(chalk.red(e));
