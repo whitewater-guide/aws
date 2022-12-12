@@ -47,6 +47,11 @@ export const onEvent = async (event: CloudFormationCustomResourceEvent) => {
   if (!result.rows.find((r) => r.datname === 'gorge')) {
     await client.query('CREATE DATABASE gorge');
   }
+  if (!result.rows.find((r) => r.datname === 'synapse')) {
+    await client.query(
+      "CREATE DATABASE synapse LC_COLLATE 'C' LC_CTYPE 'C' ENCODING UTF8 TEMPLATE template0",
+    );
+  }
   await client.end();
 
   console.info('initialized pg extensions and databases');

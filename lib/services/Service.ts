@@ -9,6 +9,18 @@ import upperFirst from 'lodash/upperFirst';
 import { Required } from 'utility-types';
 
 import AppTags from '../AppTags';
+import { logRouter, lokiLogDriver } from './utils';
+
+export enum LogDriver {
+  GRAFANA,
+  AWS,
+}
+
+export interface LoggingConfig {
+  driver: LogDriver;
+  useJson?: boolean;
+  level?: string;
+}
 
 export interface ServiceProps {
   isDev?: boolean;
@@ -18,7 +30,7 @@ export interface ServiceProps {
 
   environment?: { [key: string]: string };
   secrets?: { [key: string]: ecs.Secret };
-  enableLogging?: boolean;
+  logging?: LoggingConfig;
   command?: string[];
 
   port: number;
@@ -42,13 +54,13 @@ export class Service {
       isDev,
       name,
       image,
-      environment,
       secrets,
       cluster,
       port,
       cpu,
       memory,
       desiredCount = 1,
+      logging,
     } = props;
     this._scope = scope;
     this._healthCheck = props.healthCheck;
@@ -61,20 +73,35 @@ export class Service {
       { cpu, memoryLimitMiB: memory },
     );
 
+    let logDriver: ecs.LogDriver | undefined;
+    switch (logging?.driver) {
+      case LogDriver.AWS:
+        logDriver = new ecs.AwsLogDriver({
+          streamPrefix: prefix,
+          logRetention: isDev
+            ? logs.RetentionDays.ONE_DAY
+            : logs.RetentionDays.ONE_WEEK,
+        });
+        break;
+      case LogDriver.GRAFANA:
+        logDriver = lokiLogDriver(name, { useJson: logging.useJson });
+        break;
+    }
+
     const container = this._taskDefinition.addContainer(`${prefix}Container`, {
+      essential: true,
       image: ecs.ContainerImage.fromRegistry(image),
-      environment,
+      environment: {
+        ...props.environment,
+        LOG_LEVEL: logging?.level ?? 'INFO',
+      },
       secrets,
-      logging: props.enableLogging
-        ? new ecs.AwsLogDriver({
-            streamPrefix: prefix,
-            logRetention: isDev
-              ? logs.RetentionDays.ONE_DAY
-              : logs.RetentionDays.ONE_WEEK,
-          })
-        : undefined,
+      logging: logDriver,
       command: props.command,
     });
+    if (logging?.driver === LogDriver.GRAFANA) {
+      this._taskDefinition.addFirelensLogRouter('LogRouter', logRouter());
+    }
 
     container.addPortMappings({
       containerPort: port,

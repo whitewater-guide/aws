@@ -8,9 +8,12 @@ import { Construct } from 'constructs';
 import { POSTGRES_SECRET_NAME } from '../database/constants';
 import { Api } from './Api';
 import { Gorge } from './Gorge';
+import { Grafana } from './Grafana';
 import { Imgproxy } from './Imgproxy';
 import { LoadBalancer } from './LoadBalancer';
+import { Loki } from './Loki';
 import { PGAdmin } from './PGAdmin';
+import { Synapse } from './Synapse';
 
 export interface ServicesStackProps {
   cluster: ecs.Cluster;
@@ -33,13 +36,20 @@ export class ServicesStack extends Stack {
     const gorge = new Gorge(this, { ...props, postgresSecret });
     const imgproxy = new Imgproxy(this, props);
     const pgadmin = new PGAdmin(this, cluster);
+    const synapse = new Synapse(this, { ...props, postgresSecret });
+    const grafana = new Grafana(this, props);
+
+    new Loki(this, props);
 
     gorge.connections.allowFrom(api, ec2.Port.tcp(Gorge.PORT));
     api.connections.allowFrom(gorge, ec2.Port.tcp(Api.PORT));
+    synapse.connections.allowFrom(api, ec2.Port.tcp(Synapse.PORT));
 
     const balancer = new LoadBalancer(this, props);
     balancer.addServiceTarget(100, 'api', api.listenerTargetProps);
-    balancer.addServiceTarget(200, 'pgadmin', pgadmin.listenerTargetProps);
-    balancer.addServiceTarget(300, 'imgproxy', imgproxy.listenerTargetProps);
+    balancer.addServiceTarget(200, 'synapse', synapse.listenerTargetProps);
+    balancer.addServiceTarget(300, 'pgadmin', pgadmin.listenerTargetProps);
+    balancer.addServiceTarget(400, 'imgproxy', imgproxy.listenerTargetProps);
+    balancer.addServiceTarget(500, 'grafana', grafana.listenerTargetProps);
   }
 }

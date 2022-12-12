@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 
 import { SSM } from '../SSM';
 import { Api } from './Api';
-import { Service } from './Service';
+import { LogDriver, Service } from './Service';
 
 interface Props {
   postgresSecret: secretsmanager.ISecret;
@@ -46,7 +46,9 @@ export class Gorge extends Service {
         ),
         GORGE_HEALTH_KEY: SSM.secret(scope, SSM.GORGE_HEALTH_KEY),
       },
-      enableLogging: false,
+      logging: {
+        driver: LogDriver.GRAFANA,
+      },
     });
   }
 }

@@ -5,7 +5,7 @@ import { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { SSM } from '../SSM';
-import { Service } from './Service';
+import { LogDriver, Service } from './Service';
 
 interface Props {
   cluster: ecs.Cluster;
@@ -23,7 +23,7 @@ export class Api extends Service {
       healthCheck: {
         path: '/ping',
       },
-      image: 'ghcr.io/whitewater-guide/backend:0.0.489',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.494',
       name: 'api',
       port: Api.PORT,
       environment: {
@@ -40,6 +40,8 @@ export class Api extends Service {
         POSTGRES_HOST: 'postgres.local',
         POSTGRES_DB: 'wwguide',
         CORS_WHITELIST: 'localhost',
+        SYNAPSE_HOST: 'synapse.local:8008',
+        SYNAPSE_HOME_SERVER: Config.get(scope, 'topLevelDomain'),
       },
       secrets: {
         POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
@@ -57,9 +59,16 @@ export class Api extends Service {
         GOOGLE_SERVICE_ACCOUNT: SSM.secret(scope, SSM.GOOGLE_SERVICE_ACCOUNT),
         GORGE_HEALTH_KEY: SSM.secret(scope, SSM.GORGE_HEALTH_KEY),
         GORGE_HEALTH_EMAILS: SSM.secret(scope, SSM.GORGE_HEALTH_EMAILS),
+        SYNAPSE_ADMIN_PASSWORD: SSM.secret(scope, SSM.SYNAPSE_ADMIN_PASSWORD),
+        SYNAPSE_REGISTRATION_SHARED_SECRET: SSM.secret(
+          scope,
+          SSM.SYNAPSE_REGISTRATION_SECRET,
+        ),
       },
-      enableLogging: true,
-      desiredCount: Config.get(scope, 'isDev') ? 1 : 2,
+      logging: {
+        driver: LogDriver.GRAFANA,
+      },
+      desiredCount: 1,
     });
     contentBucket.grantReadWrite(this.taskRole);
   }

@@ -1,7 +1,8 @@
 import { Duration, Stack } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as lambdajs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
@@ -32,14 +33,15 @@ export default class PGInitProvider extends Construct {
     const { vpc } = props;
 
     this._provider = new cr.Provider(this, 'PGInitProvider', {
-      onEventHandler: new lambda.NodejsFunction(this, 'PGInitLambda', {
+      onEventHandler: new lambdajs.NodejsFunction(this, 'PGInitLambda', {
         entry: path.resolve(__dirname, 'lambda.ts'),
         handler: 'onEvent',
         bundling: {
           externalModules: ['aws-sdk', 'pg-native'],
         },
+        runtime: lambda.Runtime.NODEJS_16_X,
         vpc,
-        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE },
+        vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
         initialPolicy: [
           new iam.PolicyStatement({
             actions: [
