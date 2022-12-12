@@ -7,8 +7,9 @@ import CertificatesStack from '../lib/certificates';
 import { RootStack } from '../lib/RootStack';
 import {
   devAccount,
-  devImgproxySecretValue,
-  devWildcardCertArn,
+  prodAccount,
+  prodImgproxySecretValue,
+  prodWildcardCertArn,
 } from './aws-accounts';
 
 const app = new App();
@@ -29,34 +30,34 @@ new CertificatesStack(app, 'CertificatesDev', {
 //   },
 // });
 
-new RootStack(app, 'Dev', {
-  config: {
-    topLevelDomain: 'whitewater-dev.com',
-    isDev: true,
-    wildcardCertArn: devWildcardCertArn,
-    imgproxySecretValue: devImgproxySecretValue,
-    crossAccount: {
-      prodBackupsBucketName: 'backups.whitewater.guide',
-    },
-  },
-  env: {
-    account: devAccount,
-    region: 'us-east-1',
-  },
-});
-
-// new RootStack(app, 'Prod', {
+// new RootStack(app, 'Dev', {
 //   config: {
-//     topLevelDomain: 'whitewater.guide',
-//     isDev: false,
-//     wildcardCertArn: prodWildcardCertArn,
-//     imgproxySecretValue: prodImgproxySecretValue,
+//     topLevelDomain: 'whitewater-dev.com',
+//     isDev: true,
+//     wildcardCertArn: devWildcardCertArn,
+//     imgproxySecretValue: devImgproxySecretValue,
 //     crossAccount: {
-//       devBackupTaskRoleArn,
+//       prodBackupsBucketName: 'backups.whitewater.guide',
 //     },
 //   },
 //   env: {
-//     account: prodAccount,
+//     account: devAccount,
 //     region: 'us-east-1',
 //   },
 // });
+
+new RootStack(app, 'Prod', {
+  config: {
+    topLevelDomain: 'whitewater.guide',
+    isDev: false,
+    wildcardCertArn: prodWildcardCertArn,
+    imgproxySecretValue: prodImgproxySecretValue,
+    // crossAccount: {
+    //   devBackupTaskRoleArn,
+    // },
+  },
+  env: {
+    account: prodAccount,
+    region: 'us-east-1',
+  },
+});
