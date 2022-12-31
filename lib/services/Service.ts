@@ -93,7 +93,7 @@ export class Service {
       image: ecs.ContainerImage.fromRegistry(image),
       environment: {
         ...props.environment,
-        LOG_LEVEL: logging?.level ?? 'INFO',
+        LOG_LEVEL: logging?.level ?? 'info',
       },
       secrets,
       logging: logDriver,
