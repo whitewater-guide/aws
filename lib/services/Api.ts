@@ -23,7 +23,7 @@ export class Api extends Service {
       healthCheck: {
         path: '/ping',
       },
-      image: 'ghcr.io/whitewater-guide/backend:0.0.497',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.498',
       name: 'api',
       port: Api.PORT,
       environment: {
@@ -67,6 +67,7 @@ export class Api extends Service {
       },
       logging: {
         driver: LogDriver.GRAFANA,
+        level: 'debug',
       },
       desiredCount: 1,
     });
