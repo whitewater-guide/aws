@@ -36,19 +36,19 @@ export class SSM {
   public static SYNAPSE_SIGNING_KEY = 'SYNAPSE_SIGNING_KEY';
   public static SYNAPSE_MACAROON_KEY = 'SYNAPSE_MACAROON_KEY';
 
-  public static string(scope: Construct, id: string) {
-    return ssm.StringParameter.valueForStringParameter(scope, id);
+  public static string(scope: Construct, id: string, version?: number) {
+    return ssm.StringParameter.valueForStringParameter(scope, id, version);
   }
 
   // Get the latest version of a secure SSM parameter
-  public static secret(scope: Construct, id: string): ecs.Secret {
+  public static secret(scope: Construct, id: string, version = 1): ecs.Secret {
     const name = upperFirst(camelCase(id));
     const existing: any = scope.node.tryFindChild(name);
     return ecs.Secret.fromSsmParameter(
       existing ??
         ssm.StringParameter.fromSecureStringParameterAttributes(scope, name, {
           parameterName: id,
-          version: 1,
+          version,
         }),
     );
   }

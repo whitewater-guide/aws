@@ -30,7 +30,7 @@ export class Api extends Service {
         NODE_ENV: 'production',
         ROOT_DOMAIN: Config.get(scope, 'topLevelDomain'),
 
-        MAIL_SMTP_SERVER: SSM.string(scope, SSM.MAIL_SMTP_SERVER),
+        MAIL_SMTP_SERVER: SSM.string(scope, SSM.MAIL_SMTP_SERVER, 2),
         MAIL_NOREPLY_BOX: SSM.string(scope, SSM.MAIL_NOREPLY_BOX),
         MAIL_INFO_BOX: SSM.string(scope, SSM.MAIL_INFO_BOX),
         MAILCHIMP_LIST_ID: SSM.string(scope, SSM.MAILCHIMP_LIST_ID),
@@ -48,7 +48,7 @@ export class Api extends Service {
           postgresSecret,
           'password',
         ),
-        MAIL_PASSWORD: SSM.secret(scope, SSM.MAIL_PASSWORD),
+        MAIL_PASSWORD: SSM.secret(scope, SSM.MAIL_PASSWORD, 2),
         MAILCHIMP_API_KEY: SSM.secret(scope, SSM.MAILCHIMP_API_KEY),
         IMGPROXY_KEY: SSM.secret(scope, SSM.IMGPROXY_KEY),
         IMGPROXY_SALT: SSM.secret(scope, SSM.IMGPROXY_SALT),
