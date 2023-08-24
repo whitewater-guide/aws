@@ -23,7 +23,7 @@ export class Api extends Service {
       healthCheck: {
         path: '/ping',
       },
-      image: 'ghcr.io/whitewater-guide/backend:0.0.513',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.514',
       name: 'api',
       port: Api.PORT,
       environment: {
@@ -59,6 +59,7 @@ export class Api extends Service {
         GOOGLE_SERVICE_ACCOUNT: SSM.secret(scope, SSM.GOOGLE_SERVICE_ACCOUNT),
         GORGE_HEALTH_KEY: SSM.secret(scope, SSM.GORGE_HEALTH_KEY),
         GORGE_HEALTH_EMAILS: SSM.secret(scope, SSM.GORGE_HEALTH_EMAILS),
+        PUCON_PROMO_EMAILS: SSM.secret(scope, SSM.PUCON_PROMO_EMAILS),
         SYNAPSE_ADMIN_PASSWORD: SSM.secret(scope, SSM.SYNAPSE_ADMIN_PASSWORD),
         SYNAPSE_REGISTRATION_SHARED_SECRET: SSM.secret(
           scope,
