@@ -23,7 +23,7 @@ export class Api extends Service {
       healthCheck: {
         path: '/ping',
       },
-      image: 'ghcr.io/whitewater-guide/backend:0.0.516',
+      image: 'ghcr.io/whitewater-guide/backend:0.0.517',
       name: 'api',
       port: Api.PORT,
       environment: {
