@@ -19,10 +19,9 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.5.1',
+      image: 'ghcr.io/whitewater-guide/gorge:3.6.0',
       name: 'gorge',
       port: Gorge.PORT,
-      memory: 512,
       command: [
         '--cache',
         'inmemory', // in the beginning of 2021 total redis database size on production was 700kb, I think we can afford to fit it in memory
