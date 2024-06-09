@@ -26,6 +26,7 @@ export class SSM {
 
   public static GORGE_HEALTH_KEY = 'GORGE_HEALTH_KEY';
   public static GORGE_HEALTH_EMAILS = 'GORGE_HEALTH_EMAILS';
+  public static GORGE_NVE_API_KEY = 'GORGE_NVE_API_KEY';
 
   public static PUCON_PROMO_EMAILS = 'PUCON_PROMO_EMAILS';
 
