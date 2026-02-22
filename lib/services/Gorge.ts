@@ -19,7 +19,7 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.12.0',
+      image: 'ghcr.io/whitewater-guide/gorge:3.12.5',
       name: 'gorge',
       // memory: 2048,
       // cpu: 512,
