@@ -5,7 +5,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
-import { POSTGRES_SECRET_NAME } from '../database/constants';
+import { POSTGRES18_SECRET_NAME } from '../database/constants';
 import { Api } from './Api';
 import { Gorge } from './Gorge';
 import { Grafana } from './Grafana';
@@ -29,7 +29,7 @@ export class ServicesStack extends Stack {
     const postgresSecret = secretsmanager.Secret.fromSecretNameV2(
       scope,
       'PGSecret',
-      POSTGRES_SECRET_NAME,
+      POSTGRES18_SECRET_NAME,
     );
 
     const api = new Api(this, { ...props, postgresSecret });

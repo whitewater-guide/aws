@@ -1,4 +1,4 @@
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
+import { ArnFormat, Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -7,11 +7,10 @@ import * as cloudmap from 'aws-cdk-lib/aws-servicediscovery';
 import { Construct } from 'constructs';
 
 import { Config } from '../config';
-import { POSTGRES_SECRET_NAME } from './constants';
 import { DatabaseProps } from './types';
 
-export class Postgres13 {
-  private readonly _instance: rds.DatabaseInstance;
+export class Postgres18 {
+  private readonly _instance: rds.DatabaseInstanceFromSnapshot;
   private readonly _scope: Construct;
 
   constructor(scope: Construct, { cluster }: DatabaseProps) {
@@ -19,17 +18,18 @@ export class Postgres13 {
     this._scope = scope;
 
     const engine = rds.DatabaseInstanceEngine.postgres({
-      version: rds.PostgresEngineVersion.VER_13_4,
+      version: rds.PostgresEngineVersion.VER_18_2,
     });
 
-    const parameterGroup = new rds.ParameterGroup(scope, 'PG13Params', {
+    const parameterGroup = new rds.ParameterGroup(scope, 'PG18Params', {
       engine,
       parameters: {
         shared_preload_libraries: 'pg_cron',
+        'rds.force_ssl': '0',
       },
     });
 
-    this._instance = new rds.DatabaseInstance(scope, 'Pg13', {
+    this._instance = new rds.DatabaseInstanceFromSnapshot(scope, 'Pg18', {
       engine,
       parameterGroup,
       instanceType: ec2.InstanceType.of(
@@ -38,9 +38,7 @@ export class Postgres13 {
       ),
       vpc: cluster.vpc,
       multiAz: false,
-      databaseName: 'postgres',
-      credentials: rds.Credentials.fromGeneratedSecret('postgres', {
-        secretName: POSTGRES_SECRET_NAME,
+      credentials: rds.SnapshotCredentials.fromGeneratedSecret('postgres', {
         excludeCharacters: ' =.,%+~^`#$&*()|[]{}:;<>?!\'/@"\\',
       }),
       cloudwatchLogsRetention: logs.RetentionDays.ONE_DAY,
@@ -48,22 +46,16 @@ export class Postgres13 {
       deleteAutomatedBackups: isDev,
       deletionProtection: !isDev,
       removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.SNAPSHOT,
-      allocatedStorage: 20,
-      maxAllocatedStorage: isDev ? 50 : 100,
+      allocatedStorage: 40,
+      maxAllocatedStorage: 150,
+      snapshotIdentifier: Stack.of(scope).formatArn({
+        service: 'rds',
+        resource: 'snapshot',
+        arnFormat: ArnFormat.COLON_RESOURCE_NAME,
+        resourceName: 'fromv13',
+      }),
     });
-    // we're in private subnet
     this._instance.connections.allowDefaultPortFromAnyIpv4();
-    // Add alarm for high CPU
-    new cloudwatch.Alarm(scope, 'Pg13HighCPU', {
-      metric: this._instance.metricCPUUtilization(),
-      threshold: 90,
-      evaluationPeriods: 1,
-    });
-    new cloudwatch.Alarm(scope, 'Pg13LowStorage', {
-      metric: this._instance.metricFreeStorageSpace(),
-      threshold: 1024 * 1024 * 1024 * 5,
-      evaluationPeriods: 1,
-    });
 
     // Enable service discovery
     if (cluster.defaultCloudMapNamespace) {
@@ -76,6 +68,17 @@ export class Postgres13 {
         instanceCname: this._instance.dbInstanceEndpointAddress,
       });
     }
+
+    new cloudwatch.Alarm(scope, 'Pg18HighCPU', {
+      metric: this._instance.metricCPUUtilization(),
+      threshold: 90,
+      evaluationPeriods: 1,
+    });
+    new cloudwatch.Alarm(scope, 'Pg18LowStorage', {
+      metric: this._instance.metricFreeStorageSpace(),
+      threshold: 1024 * 1024 * 1024 * 5,
+      evaluationPeriods: 1,
+    });
   }
 
   public get secret() {

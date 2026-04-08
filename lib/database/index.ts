@@ -5,8 +5,7 @@ import { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { BackupTaskDefinition } from './BackupTaskDefinition';
-import { PGInit } from './init';
-import { Postgres13 } from './Postgres13';
+import { Postgres18 } from './Postgres18';
 import { DatabaseProps } from './types';
 
 export class DatabaseStack extends Stack {
@@ -14,14 +13,18 @@ export class DatabaseStack extends Stack {
     super(scope, id, props);
     const isDev = Config.get(scope, 'isDev');
 
-    const pg13 = new Postgres13(this, props);
-    new PGInit(this, 'PG13Init', { cluster: props.cluster, database: pg13 });
+    const pg18 = new Postgres18(this, props);
+    // const pg18Staging = new Postgres18Staging(this, props);
+    // new Migrate13To18(this, 'Migrate13To18', {
+    //   cluster: props.cluster,
+    //   secrets: { pg13: pg13.secret, pg18: pg18Staging.secret },
+    // });
 
     new ScheduledFargateTask(this, 'ScheduledBackup', {
       cluster: props.cluster,
       scheduledFargateTaskDefinitionOptions: {
         taskDefinition: new BackupTaskDefinition(this, {
-          postgresSecret: pg13.secret,
+          postgresSecret: pg18.secret,
         }),
       },
       schedule: events.Schedule.rate(Duration.hours(24)),

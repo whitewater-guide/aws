@@ -61,6 +61,12 @@ export class Buckets {
     this.landingBucket = new s3.Bucket(scope, 'LandingBucket', {
       bucketName: topLevelDomain,
       publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicPolicy: false,
+        blockPublicAcls: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
       removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
     });
@@ -69,6 +75,12 @@ export class Buckets {
     this.adminBucket = new s3.Bucket(scope, 'AdminBucket', {
       bucketName: `admin.${topLevelDomain}`,
       publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicPolicy: false,
+        blockPublicAcls: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
       removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
     });
@@ -79,6 +91,12 @@ export class Buckets {
     this.appBucket = new s3.Bucket(scope, 'AppBucket', {
       bucketName: `app.${topLevelDomain}`,
       publicReadAccess: true,
+      blockPublicAccess: {
+        blockPublicPolicy: false,
+        blockPublicAcls: false,
+        ignorePublicAcls: false,
+        restrictPublicBuckets: false,
+      },
       removalPolicy: isDev ? RemovalPolicy.DESTROY : RemovalPolicy.RETAIN,
       autoDeleteObjects: isDev,
     });

@@ -1,0 +1,1 @@
+export const POSTGRES18_STAGING_SECRET_NAME = 'Pg18Staging';

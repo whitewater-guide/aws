@@ -23,12 +23,12 @@ export class BackupTaskDefinition extends ecs.FargateTaskDefinition {
 
     this.addContainer('BackupContainer', {
       image: ecs.ContainerImage.fromRegistry(
-        'ghcr.io/whitewater-guide/pg_dump_restore:3.6.1',
+        'ghcr.io/whitewater-guide/pg_dump_restore:4.0.1',
       ),
       environment: {
         PGUSER: 'postgres',
         S3_BUCKET: backupsBucket,
-        S3_PREFIX: 'v3/',
+        S3_PREFIX: 'v4/',
       },
       secrets: {
         PGHOST: ecs.Secret.fromSecretsManager(postgresSecret, 'host'),
