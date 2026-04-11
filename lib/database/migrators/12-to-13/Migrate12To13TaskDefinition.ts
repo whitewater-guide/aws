@@ -1,8 +1,8 @@
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import { Construct } from 'constructs';
+import type * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import type { Construct } from 'constructs';
 
 import { Config } from '../../../config';
 

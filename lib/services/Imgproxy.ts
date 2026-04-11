@@ -2,12 +2,12 @@ import { Stack } from 'aws-cdk-lib';
 import * as cert from 'aws-cdk-lib/aws-certificatemanager';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as ecs from 'aws-cdk-lib/aws-ecs';
+import type * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
+import type * as s3 from 'aws-cdk-lib/aws-s3';
+import type { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { SSM } from '../SSM';
@@ -27,7 +27,7 @@ export class Imgproxy extends Service {
   constructor(scope: Construct, props: Props) {
     const { cluster, contentBucket } = props;
 
-    const isDev = Config.get(scope, 'isDev');
+    const _isDev = Config.get(scope, 'isDev');
 
     super(scope, {
       cluster,

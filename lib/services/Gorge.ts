@@ -1,6 +1,6 @@
 import * as ecs from 'aws-cdk-lib/aws-ecs';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import { Construct } from 'constructs';
+import type * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import type { Construct } from 'constructs';
 
 import { SSM } from '../SSM';
 import { Api } from './Api';

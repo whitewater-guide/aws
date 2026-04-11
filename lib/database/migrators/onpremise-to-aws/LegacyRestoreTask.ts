@@ -1,6 +1,6 @@
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 export interface LegacyRestoreTaskProps {
   password: ecs.Secret;

@@ -1,7 +1,7 @@
 import * as ecs from 'aws-cdk-lib/aws-ecs';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import { Construct } from 'constructs';
+import type * as s3 from 'aws-cdk-lib/aws-s3';
+import type * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import type { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { SSM } from '../SSM';

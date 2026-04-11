@@ -1,9 +1,9 @@
 import * as cert from 'aws-cdk-lib/aws-certificatemanager';
-import * as ecs from 'aws-cdk-lib/aws-ecs';
+import type * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 import upperFirst from 'lodash/upperFirst';
 
 import { Config } from '../config';

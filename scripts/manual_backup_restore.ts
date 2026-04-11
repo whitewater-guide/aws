@@ -77,9 +77,7 @@ async function runTask(
   // Find task definition
   const { taskDefinitionArns } = await ecs.listTaskDefinitions().promise();
 
-  const def = taskDefinitionArns?.find((d) =>
-    d.toLowerCase().includes('backup'),
-  );
+  const def = taskDefinitionArns?.find(d => d.toLowerCase().includes('backup'));
   if (!def) {
     throw new Error('DB backup/restore task definition not found');
   }
@@ -101,7 +99,7 @@ async function runTask(
     throw new Error('Could not find db subnets');
   }
   const subnets = db.DBSubnetGroup.Subnets.map(
-    (sn) => sn.SubnetIdentifier,
+    sn => sn.SubnetIdentifier,
   ).filter((s): s is string => !!s);
 
   // Run
@@ -182,7 +180,7 @@ program
   .requiredOption('--profile <profile>', 'aws profile to use')
   .option('--skip-partitions', 'do not archive old measurements partitions')
   .action((options: BackupOptions) => {
-    pgBackup(options).catch((e) => {
+    pgBackup(options).catch(e => {
       console.error(chalk.red(e));
       process.exit(1);
     });
@@ -198,7 +196,7 @@ program
   )
   .option('--skip-synapse', 'do not restore synapse db')
   .action((options: RestoreOptions) => {
-    pgRestore(options).catch((e) => {
+    pgRestore(options).catch(e => {
       console.error(chalk.red(e));
       process.exit(1);
     });

@@ -3,8 +3,8 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as targets from 'aws-cdk-lib/aws-route53-targets';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import { Construct } from 'constructs';
+import type * as s3 from 'aws-cdk-lib/aws-s3';
+import type { Construct } from 'constructs';
 import upperFirst from 'lodash/upperFirst';
 
 import { Config } from '../config';
@@ -13,7 +13,7 @@ export class BucketDistribution extends cloudfront.Distribution {
   constructor(scope: Construct, bucket: s3.Bucket, subDomain = '') {
     const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const prefix = upperFirst(subDomain || 'root');
-    const fullDomain = [subDomain, topLevelDomain].filter((d) => !!d).join('.');
+    const fullDomain = [subDomain, topLevelDomain].filter(d => !!d).join('.');
 
     const hostedZone = route53.HostedZone.fromLookup(
       scope,

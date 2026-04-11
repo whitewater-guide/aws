@@ -1,7 +1,7 @@
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import type * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as discovery from 'aws-cdk-lib/aws-servicediscovery';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 export default class Cluster extends ecs.Cluster {
   constructor(scope: Construct, id: string, vpc: ec2.Vpc) {

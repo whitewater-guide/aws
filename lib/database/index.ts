@@ -1,12 +1,12 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib';
+import { Duration, Stack, type StackProps } from 'aws-cdk-lib';
 import { ScheduledFargateTask } from 'aws-cdk-lib/aws-ecs-patterns';
 import * as events from 'aws-cdk-lib/aws-events';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { Config } from '../config';
 import { BackupTaskDefinition } from './BackupTaskDefinition';
 import { Postgres18 } from './Postgres18';
-import { DatabaseProps } from './types';
+import type { DatabaseProps } from './types';
 
 export class DatabaseStack extends Stack {
   constructor(scope: Construct, id: string, props: DatabaseProps & StackProps) {

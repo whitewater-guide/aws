@@ -22,7 +22,7 @@ class CloudFront implements Stoppable {
     enabled: boolean,
   ): Promise<AWS.CloudFront.DistributionSummary[]> {
     const { DistributionList } = await this.cf.listDistributions().promise();
-    return DistributionList?.Items?.filter((d) => d.Enabled === enabled) ?? [];
+    return DistributionList?.Items?.filter(d => d.Enabled === enabled) ?? [];
   }
 
   private async toggleDistribution(
@@ -51,14 +51,14 @@ class CloudFront implements Stoppable {
   public async start(): Promise<void> {
     const distributions = await this.getDistributions(false);
     await Promise.all(
-      distributions.map((distr) => this.toggleDistribution(distr, true)),
+      distributions.map(distr => this.toggleDistribution(distr, true)),
     );
   }
 
   public async stop(): Promise<void> {
     const distributions = await this.getDistributions(true);
     await Promise.all(
-      distributions.map((distr) => this.toggleDistribution(distr, false)),
+      distributions.map(distr => this.toggleDistribution(distr, false)),
     );
   }
 }
@@ -82,7 +82,8 @@ class ECSServices implements Stoppable {
       .promise();
     const { services } = await this.ecs
       .describeServices({
-        services: ResourceTagMappingList?.map((r) => r.ResourceARN!) ?? [],
+        // biome-ignore lint/style/noNonNullAssertion: <x>
+        services: ResourceTagMappingList?.map(r => r.ResourceARN!) ?? [],
         cluster: clusterArns?.[0],
       })
       .promise();
@@ -94,12 +95,13 @@ class ECSServices implements Stoppable {
   }
 
   private async toggleService(service: AWS.ECS.Service, enabled: boolean) {
-    const dcTag = service.tags?.find((t) => t.key === 'wwguide:desiredCount');
-    const desiredCount = enabled ? parseInt(dcTag?.value ?? '1') : 0;
+    const dcTag = service.tags?.find(t => t.key === 'wwguide:desiredCount');
+    const desiredCount = enabled ? parseInt(dcTag?.value ?? '1', 10) : 0;
 
     await this.ecs
       .updateService({
         cluster: service.clusterArn,
+        // biome-ignore lint/style/noNonNullAssertion: <x>
         service: service.serviceArn!,
         desiredCount,
       })
@@ -113,7 +115,9 @@ class ECSServices implements Stoppable {
     await waitFor(async () => {
       const { services } = await this.ecs
         .describeServices({
+          // biome-ignore lint/style/noNonNullAssertion: <x>
           services: [service.serviceArn!],
+          // biome-ignore lint/style/noNonNullAssertion: <x>
           cluster: service.clusterArn!,
         })
         .promise();
@@ -130,27 +134,26 @@ class ECSServices implements Stoppable {
   public async start(): Promise<void> {
     const services = await this.getServices(false);
     await Promise.all(
-      services.map((service) => this.toggleService(service, true)),
+      services.map(service => this.toggleService(service, true)),
     );
   }
 
   public async stop(): Promise<void> {
     const services = await this.getServices(true);
     await Promise.all(
-      services.map((service) => this.toggleService(service, false)),
+      services.map(service => this.toggleService(service, false)),
     );
   }
 }
 
 class Postgres implements Stoppable {
   private readonly rds = new AWS.RDS();
-  private readonly tags = new AWS.ResourceGroupsTaggingAPI();
 
   private async getInstances(enabled: boolean): Promise<AWS.RDS.DBInstance[]> {
     const { DBInstances } = await this.rds.describeDBInstances().promise();
     return (
       DBInstances?.filter(
-        (i) => i.DBInstanceStatus === (enabled ? 'available' : 'stopped'),
+        i => i.DBInstanceStatus === (enabled ? 'available' : 'stopped'),
       ) ?? []
     );
   }
@@ -192,14 +195,14 @@ class Postgres implements Stoppable {
   public async start(): Promise<void> {
     const instances = await this.getInstances(false);
     await Promise.all(
-      instances.map((instance) => this.toggleInstance(instance, true)),
+      instances.map(instance => this.toggleInstance(instance, true)),
     );
   }
 
   public async stop(): Promise<void> {
     const instances = await this.getInstances(true);
     await Promise.all(
-      instances.map((instance) => this.toggleInstance(instance, false)),
+      instances.map(instance => this.toggleInstance(instance, false)),
     );
   }
 }
@@ -209,9 +212,9 @@ class NatInstances implements Stoppable {
 
   private async getInstances(enabled: boolean): Promise<AWS.EC2.Instance[]> {
     const { Reservations } = await this.ec2.describeInstances().promise();
-    return flatMap(Reservations ?? [], (r) => r.Instances ?? [])
-      .filter((i) => i.Tags?.some((t) => t.Key === 'wwguide:vpc'))
-      .filter((i) => i.State?.Name === (enabled ? 'running' : 'stopped'));
+    return flatMap(Reservations ?? [], r => r.Instances ?? [])
+      .filter(i => i.Tags?.some(t => t.Key === 'wwguide:vpc'))
+      .filter(i => i.State?.Name === (enabled ? 'running' : 'stopped'));
   }
 
   private async toggleInstance(instance: AWS.EC2.Instance, enabled: boolean) {
@@ -251,14 +254,14 @@ class NatInstances implements Stoppable {
   public async start(): Promise<void> {
     const instances = await this.getInstances(false);
     await Promise.all(
-      instances.map((instance) => this.toggleInstance(instance, true)),
+      instances.map(instance => this.toggleInstance(instance, true)),
     );
   }
 
   public async stop(): Promise<void> {
     const instances = await this.getInstances(true);
     await Promise.all(
-      instances.map((instance) => this.toggleInstance(instance, false)),
+      instances.map(instance => this.toggleInstance(instance, false)),
     );
   }
 }

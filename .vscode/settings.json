@@ -3,23 +3,38 @@
     "editor.formatOnSave": false
   },
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[sql]": {
     "editor.formatOnSave": false
   },
-  "editor.codeActionsOnSave": [
-    "source.organizeImports",
-    "source.fixAll.eslint"
-  ],
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave": {
+    "source.action.useSortedKeys.biome": "explicit",
+    "source.fixAll.biome": "explicit",
+    "source.fixAll.eslint": "never",
+    "source.organizeImports.biome": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
   "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "eslint.enable": false,
   "search.exclude": {
     "**/build": true,
+    "**/cdk.out": true,
     "**/dist": true,
     "**/node_modules": true,
-    "**/yarn-error.log": true,
-    "**/yarn.lock": true
-  },
-  "typescript.tsdk": "node_modules/typescript/lib"
+    "**/pnpm-lock.yaml": true
+  }
 }

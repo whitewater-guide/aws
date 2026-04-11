@@ -1,13 +1,13 @@
+import * as path from 'node:path';
 import { Duration, Stack } from 'aws-cdk-lib';
-import * as ecs from 'aws-cdk-lib/aws-ecs';
+import type * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
-import * as path from 'path';
 
-import { Migrate12To13ResourceProps } from './types';
+import type { Migrate12To13ResourceProps } from './types';
 
 interface Migrate12To13ProviderProps extends Migrate12To13ResourceProps {
   taskDef: ecs.TaskDefinition;

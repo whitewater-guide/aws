@@ -1,7 +1,7 @@
-import { Stack, StackProps, Tags } from 'aws-cdk-lib';
+import { Stack, type StackProps, Tags } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as ecs from 'aws-cdk-lib/aws-ecs';
-import { Construct } from 'constructs';
+import type * as ecs from 'aws-cdk-lib/aws-ecs';
+import type { Construct } from 'constructs';
 
 import Cluster from './Cluster';
 

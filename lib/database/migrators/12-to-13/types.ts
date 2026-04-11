@@ -1,5 +1,5 @@
-import * as ecs from 'aws-cdk-lib/aws-ecs';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import type * as ecs from 'aws-cdk-lib/aws-ecs';
+import type * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 
 export interface Migrate12To13Props {
   cluster: ecs.Cluster;

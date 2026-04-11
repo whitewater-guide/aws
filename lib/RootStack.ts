@@ -1,12 +1,12 @@
-import { Stack, StackProps, Tags } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import { Stack, type StackProps, Tags } from 'aws-cdk-lib';
+import type { Construct } from 'constructs';
 
 import AppTags from './AppTags';
 import { Config } from './config';
 import { DatabaseStack } from './database';
 import { NetworkingStack } from './networking';
 import { ServicesStack } from './services';
-import { AppConfig } from './types';
+import type { AppConfig } from './types';
 import { WebStack } from './web';
 
 interface Props extends StackProps {

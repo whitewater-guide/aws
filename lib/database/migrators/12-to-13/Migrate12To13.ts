@@ -4,7 +4,7 @@ import { Construct } from 'constructs';
 import Migrate12To13Provider from './Migrate12To13Provider';
 import { Migrate12To13TaskDefinition } from './Migrate12To13TaskDefinition';
 import { Postgres13Temp } from './Postgres13Temp';
-import { Migrate12To13Props, Migrate12To13ResourceProps } from './types';
+import type { Migrate12To13Props, Migrate12To13ResourceProps } from './types';
 
 /**
  * Migrate12To13 is custom resource that does following:
@@ -27,7 +27,7 @@ export class Migrate12To13 extends Construct {
     const properties: Migrate12To13ResourceProps = {
       taskDefArn: taskDef.taskDefinitionArn,
       clusterArn: cluster.clusterArn,
-      subnets: cluster.vpc.privateSubnets.map((s) => s.subnetId),
+      subnets: cluster.vpc.privateSubnets.map(s => s.subnetId),
     };
 
     new CustomResource(this, 'CRes', {

@@ -1,71 +1,60 @@
 {
-  "name": "aws",
-  "version": "0.1.0",
+  "name": "@whitewater-guide/aws",
+  "version": "0.0.0",
   "bin": {
     "aws": "bin/aws.js"
   },
+  "private": true,
+  "type": "module",
   "scripts": {
-    "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "build": "tsc",
-    "watch": "tsc -w",
     "cdk": "cdk",
-    "clean": "rm -rf ./cdk.out ./dist",
-    "start": "tsx scripts/start_stop.ts start",
-    "stop": "tsx scripts/start_stop.ts stop",
-    "manual": "tsx scripts/manual_backup_restore.ts",
-    "prepare": "husky install"
+    "prepare": "husky",
+    "check": "biome check --write",
+    "check:ci": "biome check",
+    "typecheck:ci": "tsc --noEmit"
   },
   "dependencies": {
     "aws-cdk-lib": "^2.51.1",
     "aws-lambda": "^1.0.7",
     "aws-sdk": "^2.1258.0",
-    "chalk": "^4.1.2",
-    "commander": "^9.4.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.3",
     "constructs": "^10.1.164",
     "lodash": "^4.17.21",
-    "p-wait-for": "3.2.0",
+    "p-wait-for": "6.0.0",
     "pg": "^8.8.0",
     "source-map-support": "^0.5.21",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@aws-cdk/assert": "2.68.0",
+    "@biomejs/biome": "^2.4.11",
     "@commitlint/config-conventional": "^20.5.0",
     "@types/aws-lambda": "^8.10.108",
     "@types/aws-sdk": "^2.7.0",
     "@types/lodash": "^4.14.189",
-    "@types/node": "25.5.2",
+    "@types/node": "25.6.0",
     "@types/pg": "^8.6.5",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
-    "aws-cdk": "2.1117.0",
+    "aws-cdk": "2.1118.0",
     "commitlint": "^20.5.0",
     "esbuild": "0.28.0",
-    "eslint": "^8.28.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-typescript": "^3.5.2",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-simple-import-sort": "^8.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "prettier": "^2.7.1",
-    "tsx": "^10.9.1",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2",
     "utility-types": "^3.10.0"
   },
-  "targets": {
-    "cdk-lambda": {
-      "context": "node",
-      "includeNodeModules": {
-        "aws-sdk": false,
-        "pg-native": false
-      },
-      "sourceMap": false,
-      "minify": false,
-      "engines": {
-        "node": ">= 16"
-      }
-    }
-  }
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mts,mjs,json}": [
+      "biome check --no-errors-on-unmatched --write"
+    ]
+  },
+  "packageManager": "pnpm@10.32.1"
 }

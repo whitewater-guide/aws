@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
 
-import { AppConfig } from '../types';
+import type { AppConfig } from '../types';
 
 export class Config extends Construct {
   private static _roots: Map<string, AppConfig> = new Map();

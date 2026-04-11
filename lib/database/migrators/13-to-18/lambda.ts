@@ -5,7 +5,7 @@ import type {
 import AWS from 'aws-sdk';
 import { v4 } from 'uuid';
 
-import { Migrate13To18ResourceProps } from './types';
+import type { Migrate13To18ResourceProps } from './types';
 
 interface CreatePayload {
   TaskArn: string;
@@ -25,7 +25,7 @@ export async function onEvent(
   }
 
   // When creating, generate unique id
-  const PhysicalResourceId = 'Migrate13To18X' + v4().replace(/-/g, '');
+  const PhysicalResourceId = `Migrate13To18X${v4().replace(/-/g, '')}`;
   const props =
     event.ResourceProperties as unknown as Migrate13To18ResourceProps;
   const ecs = new AWS.ECS();

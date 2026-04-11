@@ -1,9 +1,9 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import { Stack, type StackProps } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as ecs from 'aws-cdk-lib/aws-ecs';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+import type * as ecs from 'aws-cdk-lib/aws-ecs';
+import type * as s3 from 'aws-cdk-lib/aws-s3';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { POSTGRES18_SECRET_NAME } from '../database/constants';
 import { Api } from './Api';

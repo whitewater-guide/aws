@@ -1,12 +1,12 @@
 import { Tags } from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import type * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import * as iam from 'aws-cdk-lib/aws-iam';
+import type * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 import upperFirst from 'lodash/upperFirst';
-import { Required } from 'utility-types';
+import type { Required } from 'utility-types';
 
 import AppTags from '../AppTags';
 import { logRouter, lokiLogDriver } from './utils';
@@ -148,9 +148,9 @@ export class Service {
   }
 
   public addToTaskRolePolicy(statements: iam.PolicyStatement[]) {
-    statements.forEach((stmt) =>
-      this._taskDefinition.addToTaskRolePolicy(stmt),
-    );
+    for (const stmt of statements) {
+      this._taskDefinition.addToTaskRolePolicy(stmt);
+    }
   }
 
   public get taskRole() {

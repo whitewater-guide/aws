@@ -2,18 +2,16 @@ import { Duration, RemovalPolicy } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { Config } from '../../../config';
-import { DatabaseProps } from '../../types';
+import type { DatabaseProps } from '../../types';
 
 export class Postgres13Temp {
   private readonly _instance: rds.DatabaseInstance;
-  private readonly _scope: Construct;
 
   constructor(scope: Construct, { cluster }: DatabaseProps) {
-    const isDev = Config.get(scope, 'isDev');
-    this._scope = scope;
+    const _isDev = Config.get(scope, 'isDev');
 
     const engine = rds.DatabaseInstanceEngine.postgres({
       version: rds.PostgresEngineVersion.VER_13_4,
@@ -50,7 +48,7 @@ export class Postgres13Temp {
   }
 
   public get secret() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // biome-ignore lint/style/noNonNullAssertion: <secret is created>
     return this._instance.secret!;
   }
 

@@ -3,9 +3,9 @@ import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
-import { DatabaseProps } from '../types';
+import type { DatabaseProps } from '../types';
 import { POSTGRES18_STAGING_SECRET_NAME } from './constants';
 
 export class Postgres18Staging {
@@ -46,7 +46,7 @@ export class Postgres18Staging {
       description: 'PG18 staging public hostname',
     });
     new CfnOutput(scope, 'Pg18StagingSecretArn', {
-      value: this._instance.secret!.secretArn,
+      value: this._instance.secret?.secretArn ?? '',
       description: 'PG18 staging credentials secret ARN',
     });
 
@@ -63,7 +63,7 @@ export class Postgres18Staging {
   }
 
   public get secret() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // biome-ignore lint/style/noNonNullAssertion: <secret is created>
     return this._instance.secret!;
   }
 

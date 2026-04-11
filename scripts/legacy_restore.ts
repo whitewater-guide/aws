@@ -1,7 +1,7 @@
+import { URL } from 'node:url';
 import AWS from 'aws-sdk';
 import chalk from 'chalk';
 import { program } from 'commander';
-import { URL } from 'url';
 
 AWS.config.region = 'us-east-1';
 
@@ -11,13 +11,13 @@ const rds = new AWS.RDS();
 async function pgRestore(backupURL: string, skipGorge?: boolean) {
   try {
     new URL(backupURL);
-  } catch (e) {
+  } catch (_e) {
     throw new Error('You must provide backup URL as argument');
   }
 
   // Find PGRestore task definition
   const { taskDefinitionArns } = await ecs.listTaskDefinitions().promise();
-  const def = taskDefinitionArns?.find((d) =>
+  const def = taskDefinitionArns?.find(d =>
     d.toLowerCase().includes('legacyrestore'),
   );
   if (!def) {
@@ -63,9 +63,9 @@ async function pgRestore(backupURL: string, skipGorge?: boolean) {
       },
       networkConfiguration: {
         awsvpcConfiguration: {
-          subnets: db.DBSubnetGroup!.Subnets!.map(
-            (sn) => sn.SubnetIdentifier!,
-          )!,
+          // biome-ignore lint/style/noNonNullAssertion: <x>
+          // biome-ignore lint/suspicious/noNonNullAssertedOptionalChain: <x>
+          subnets: db.DBSubnetGroup?.Subnets?.map(sn => sn.SubnetIdentifier!)!,
         },
       },
     })
@@ -85,7 +85,7 @@ program
   )
   .description('restores legacy (v2) backup into AWS')
   .action((backupURL: string, options: { skipGorge?: boolean }) => {
-    pgRestore(backupURL, options.skipGorge).catch((e) =>
+    pgRestore(backupURL, options.skipGorge).catch(e =>
       console.error(chalk.red(e)),
     );
   });

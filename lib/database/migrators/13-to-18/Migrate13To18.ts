@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 
 import Migrate13To18Provider from './Migrate13To18Provider';
 import { Migrate13To18TaskDefinition } from './Migrate13To18TaskDefinition';
-import { Migrate13To18Props, Migrate13To18ResourceProps } from './types';
+import type { Migrate13To18Props, Migrate13To18ResourceProps } from './types';
 
 /**
  * Migrate13To18 is a custom resource that does the following:
@@ -19,7 +19,7 @@ export class Migrate13To18 extends Construct {
     const properties: Migrate13To18ResourceProps = {
       taskDefArn: taskDef.taskDefinitionArn,
       clusterArn: cluster.clusterArn,
-      subnets: cluster.vpc.privateSubnets.map((s) => s.subnetId),
+      subnets: cluster.vpc.privateSubnets.map(s => s.subnetId),
     };
 
     new CustomResource(this, 'CRes', {

@@ -4,10 +4,10 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as cloudmap from 'aws-cdk-lib/aws-servicediscovery';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { Config } from '../config';
-import { DatabaseProps } from './types';
+import type { DatabaseProps } from './types';
 
 export class Postgres18 {
   private readonly _instance: rds.DatabaseInstanceFromSnapshot;
@@ -82,7 +82,7 @@ export class Postgres18 {
   }
 
   public get secret() {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // biome-ignore lint/style/noNonNullAssertion: <secret is created>
     return this._instance.secret!;
   }
 

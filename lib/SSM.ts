@@ -1,6 +1,7 @@
+/** biome-ignore-all lint/complexity/noStaticOnlyClass: <keep this> */
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as ssm from 'aws-cdk-lib/aws-ssm';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
 
@@ -46,7 +47,7 @@ export class SSM {
   // Get the latest version of a secure SSM parameter
   public static secret(scope: Construct, id: string, version = 1): ecs.Secret {
     const name = upperFirst(camelCase(id));
-    const existing: any = scope.node.tryFindChild(name);
+    const existing = scope.node.tryFindChild(name) as ssm.IParameter;
     return ecs.Secret.fromSsmParameter(
       existing ??
         ssm.StringParameter.fromSecureStringParameterAttributes(scope, name, {

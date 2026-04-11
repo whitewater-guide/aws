@@ -1,0 +1,7 @@
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - "@whitewater-guide/*"
+
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver
