@@ -29,7 +29,7 @@ export class Migrate12To13TaskDefinition extends ecs.FargateTaskDefinition {
     const backupsPrefix = 'migration12_to_13/';
 
     this.addContainer('Container', {
-      image: ecs.ContainerImage.fromAsset(__dirname),
+      image: ecs.ContainerImage.fromAsset(import.meta.dirname),
       environment: {
         S3_BUCKET: backupsBucket,
         S3_PREFIX: backupsPrefix,

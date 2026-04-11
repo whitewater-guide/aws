@@ -3,5 +3,6 @@ minimumReleaseAgeExclude:
   - "@whitewater-guide/*"
 
 onlyBuiltDependencies:
+  - aws-sdk
   - esbuild
   - unrs-resolver

@@ -109,7 +109,9 @@ export class Buckets {
       scope,
       'AppDeploy',
       {
-        sources: [s3deploy.Source.asset(path.resolve(__dirname, 'app'))],
+        sources: [
+          s3deploy.Source.asset(path.resolve(import.meta.dirname, 'app')),
+        ],
         destinationBucket: this.appBucket,
         distribution: appDistribution,
       },

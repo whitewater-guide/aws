@@ -29,7 +29,7 @@ export class Migrate13To18TaskDefinition extends ecs.FargateTaskDefinition {
     const backupsBucket = `backups.${topLevelDomain}`;
 
     this.addContainer('Container', {
-      image: ecs.ContainerImage.fromAsset(__dirname, {
+      image: ecs.ContainerImage.fromAsset(import.meta.dirname, {
         platform: Platform.LINUX_AMD64,
       }),
       environment: {

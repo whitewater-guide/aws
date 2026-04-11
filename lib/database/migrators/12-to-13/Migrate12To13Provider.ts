@@ -36,7 +36,7 @@ export default class Migrate12To13Provider extends Construct {
     const { clusterArn, taskDefArn, taskDef } = props;
 
     const commonProps: lambda.NodejsFunctionProps = {
-      entry: path.resolve(__dirname, 'lambda.ts'),
+      entry: path.resolve(import.meta.dirname, 'lambda.ts'),
       bundling: {
         externalModules: ['aws-sdk'],
       },
