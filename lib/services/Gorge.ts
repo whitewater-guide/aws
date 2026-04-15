@@ -1,5 +1,11 @@
+import * as cdk from 'aws-cdk-lib';
+import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cw_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as efs from 'aws-cdk-lib/aws-efs';
 import type * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as sns_subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import type { Construct } from 'constructs';
 
 import { SSM } from '../SSM';
@@ -16,17 +22,32 @@ export class Gorge extends Service {
 
   constructor(scope: Construct, props: Props) {
     const { cluster, postgresSecret } = props;
+
+    const fileSystem = new efs.FileSystem(scope, 'GorgeCache', {
+      vpc: cluster.vpc,
+      oneZone: true,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const accessPoint = fileSystem.addAccessPoint('GorgeCacheAP', {
+      path: '/gorge',
+      createAcl: { ownerGid: '1000', ownerUid: '1000', permissions: '755' },
+      posixUser: { gid: '1000', uid: '1000' },
+    });
+
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.13.3',
+      image: 'ghcr.io/whitewater-guide/gorge:3.14.0',
       name: 'gorge',
       // memory: 2048,
       // cpu: 512,
       port: Gorge.PORT,
       command: [
         '--cache',
-        'inmemory', // in the beginning of 2021 total redis database size on production was 700kb, I think we can afford to fit it in memory
+        'bbolt',
+        '--bbolt-path',
+        '/data/bbolt-cache.db',
         '--pg-host',
         'postgres.local',
         '--pg-db',
@@ -52,6 +73,49 @@ export class Gorge extends Service {
       logging: {
         driver: LogDriver.GRAFANA,
       },
+      volumes: [
+        {
+          name: 'gorge-cache',
+          containerPath: '/data',
+          efsVolumeConfiguration: {
+            fileSystemId: fileSystem.fileSystemId,
+            transitEncryption: 'ENABLED',
+            authorizationConfig: {
+              accessPointId: accessPoint.accessPointId,
+            },
+          },
+        },
+      ],
     });
+
+    fileSystem.connections.allowDefaultPortFrom(this.connections);
+
+    const alertEmail = process.env.ALARM_EMAIL;
+    if (alertEmail) {
+      const alertTopic = new sns.Topic(scope, 'GorgeCacheAlertTopic');
+      alertTopic.addSubscription(
+        new sns_subscriptions.EmailSubscription(alertEmail),
+      );
+
+      const alarm = new cloudwatch.Alarm(scope, 'GorgeCacheSizeAlarm', {
+        metric: new cloudwatch.Metric({
+          namespace: 'AWS/EFS',
+          metricName: 'StorageBytes',
+          dimensionsMap: {
+            FileSystemId: fileSystem.fileSystemId,
+            StorageClass: 'Total',
+          },
+          period: cdk.Duration.minutes(15),
+          statistic: 'Maximum',
+        }),
+        threshold: 100 * 1024 * 1024, // 100 MB in bytes
+        comparisonOperator:
+          cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+        evaluationPeriods: 1,
+        treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+        alarmDescription: 'Gorge bbolt cache on EFS has exceeded 100 MB',
+      });
+      alarm.addAlarmAction(new cw_actions.SnsAction(alertTopic));
+    }
   }
 }

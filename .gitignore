@@ -16,3 +16,4 @@ cdk.context.json
 dist/
 
 bin/aws-accounts.ts
+.envrc

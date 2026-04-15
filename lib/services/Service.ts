@@ -22,6 +22,12 @@ export interface LoggingConfig {
   level?: string;
 }
 
+export interface EFSVolumeProps {
+  name: string;
+  efsVolumeConfiguration: ecs.EfsVolumeConfiguration;
+  containerPath: string;
+}
+
 export interface ServiceProps {
   isDev?: boolean;
   name: string;
@@ -39,6 +45,7 @@ export interface ServiceProps {
   cpu?: number;
   memory?: number;
   desiredCount?: number;
+  volumes?: EFSVolumeProps[];
 }
 
 export class Service {
@@ -103,6 +110,18 @@ export class Service {
       this._taskDefinition.addFirelensLogRouter('LogRouter', logRouter());
     }
 
+    for (const vol of props.volumes ?? []) {
+      this._taskDefinition.addVolume({
+        name: vol.name,
+        efsVolumeConfiguration: vol.efsVolumeConfiguration,
+      });
+      container.addMountPoints({
+        containerPath: vol.containerPath,
+        sourceVolume: vol.name,
+        readOnly: false,
+      });
+    }
+
     container.addPortMappings({
       containerPort: port,
       hostPort: port,
@@ -119,6 +138,10 @@ export class Service {
         name,
       },
       desiredCount,
+      circuitBreaker: {
+        enable: true,
+        rollback: true,
+      },
     });
     Tags.of(this._service).add(...AppTags.DesiredCount(desiredCount));
 

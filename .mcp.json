@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "aws-api": {
+      "command": "uvx",
+      "args": ["awslabs.aws-api-mcp-server@latest"]
+    },
+    "aws-iac": {
+      "command": "uvx",
+      "args": ["awslabs.aws-iac-mcp-server@latest"]
+    },
+    "aws-docs": {
+      "command": "uvx",
+      "args": ["awslabs.aws-documentation-mcp-server@latest"]
+    },
+    "aws-knowledge-mcp-server": {
+      "type": "http",
+      "url": "https://knowledge-mcp.global.api.aws"
+    },
+    "aws-pricing": {
+      "command": "uvx",
+      "args": ["awslabs.aws-pricing-mcp-server@latest"]
+    }
+  }
+}
