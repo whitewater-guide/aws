@@ -20,7 +20,6 @@ export class Buckets {
   constructor(scope: Construct) {
     const topLevelDomain = Config.get(scope, 'topLevelDomain');
     const isDev = Config.get(scope, 'isDev');
-    const crossAccount = Config.get(scope, 'crossAccount');
 
     this.contentBucket = new s3.Bucket(scope, 'ContentBucket', {
       bucketName: `content.${topLevelDomain}`,
@@ -163,12 +162,5 @@ export class Buckets {
         },
       ],
     });
-
-    // Allow restore task in dev deployment to pull backups from prod deployment
-    if (!isDev && crossAccount?.devBackupTaskRoleArn) {
-      this.backupsBucket.grantRead(
-        new iam.ArnPrincipal(crossAccount.devBackupTaskRoleArn),
-      );
-    }
   }
 }

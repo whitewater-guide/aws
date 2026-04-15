@@ -25,7 +25,6 @@ export class Gorge extends Service {
 
     const fileSystem = new efs.FileSystem(scope, 'GorgeCache', {
       vpc: cluster.vpc,
-      oneZone: true,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
@@ -38,7 +37,7 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.14.0',
+      image: 'ghcr.io/whitewater-guide/gorge:3.14.1',
       name: 'gorge',
       // memory: 2048,
       // cpu: 512,

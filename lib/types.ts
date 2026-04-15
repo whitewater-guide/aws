@@ -3,11 +3,4 @@ export interface AppConfig {
   topLevelDomain: string;
   wildcardCertArn: string;
   imgproxySecretValue: string;
-  /**
-   * Options for syncicng dev deployment with prod deployment
-   */
-  crossAccount?: {
-    devBackupTaskRoleArn?: string;
-    prodBackupsBucketName?: string;
-  };
 }
