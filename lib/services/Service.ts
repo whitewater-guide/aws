@@ -45,6 +45,8 @@ export interface ServiceProps {
   cpu?: number;
   memory?: number;
   desiredCount?: number;
+  minHealthyPercent?: number;
+  maxHealthyPercent?: number;
   volumes?: EFSVolumeProps[];
 }
 
@@ -67,6 +69,8 @@ export class Service {
       cpu,
       memory,
       desiredCount = 1,
+      minHealthyPercent,
+      maxHealthyPercent,
       logging,
     } = props;
     this._scope = scope;
@@ -138,6 +142,8 @@ export class Service {
         name,
       },
       desiredCount,
+      minHealthyPercent,
+      maxHealthyPercent,
       circuitBreaker: {
         enable: true,
         rollback: true,

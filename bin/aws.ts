@@ -2,7 +2,7 @@
 import 'source-map-support/register';
 
 import { App } from 'aws-cdk-lib';
-
+import { CanadaStack } from '../lib/canada';
 import { RootStack } from '../lib/RootStack';
 import {
   prodAccount,
@@ -22,5 +22,12 @@ new RootStack(app, 'Prod', {
   env: {
     account: prodAccount,
     region: 'us-east-1',
+  },
+});
+
+new CanadaStack(app, 'Canada', {
+  env: {
+    account: prodAccount,
+    region: 'ca-central-1',
   },
 });

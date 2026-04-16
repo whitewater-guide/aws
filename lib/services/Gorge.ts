@@ -37,11 +37,13 @@ export class Gorge extends Service {
     super(scope, {
       cluster,
       healthCheck: { path: '/version' },
-      image: 'ghcr.io/whitewater-guide/gorge:3.14.1',
+      image: 'ghcr.io/whitewater-guide/gorge:3.14.3',
       name: 'gorge',
       // memory: 2048,
       // cpu: 512,
       port: Gorge.PORT,
+      minHealthyPercent: 0,
+      maxHealthyPercent: 100,
       command: [
         '--cache',
         'bbolt',
@@ -61,6 +63,11 @@ export class Gorge extends Service {
         '--hooks-health-headers',
         'x-api-key: $GORGE_HEALTH_KEY', // this env is evaluated by gorge during runtime, not by docker!
       ],
+      environment: {
+        // Deployed in ca-central-1 region in Canada stack
+        QUEBEC2_MIRROR:
+          'https://canada-bucket83908e77-euxaksjhhzkl.s3.ca-central-1.amazonaws.com/quebec2',
+      },
       secrets: {
         POSTGRES_PASSWORD: ecs.Secret.fromSecretsManager(
           postgresSecret,

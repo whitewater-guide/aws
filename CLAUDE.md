@@ -9,15 +9,12 @@ AWS CDK (v2) infrastructure-as-code for **whitewater.guide**. TypeScript-based, 
 ## Common Commands
 
 ```bash
-npm run build          # Compile TypeScript
-npm run lint           # ESLint
-npm run cdk -- diff    # Show pending infrastructure changes
-npm run cdk -- synth   # Synthesize CloudFormation templates
-npm run cdk -- deploy  # Deploy stack
-npm run clean          # Remove cdk.out and dist/
-npm start              # Start stoppable infrastructure (cost optimization)
-npm stop               # Stop stoppable infrastructure
-npm run manual         # Run manual backup/restore script
+pnpm run check          # Lint
+pnpm run typecheck:ci   # Check Typecript compilation
+pnpm run cdk -- diff    # Show pending infrastructure changes
+pnpm run cdk -- synth   # Synthesize CloudFormation templates
+pnpm run cdk -- deploy  # Deploy stack
+pnpm run clean          # Remove cdk.out and dist/
 ```
 
 CDK commands accept stack names and flags after `--`, e.g. `npm run cdk -- deploy DevStack`.
